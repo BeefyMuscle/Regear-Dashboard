@@ -538,6 +538,59 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
 .nav-btn:hover, .edit-mode-btn:hover { border-color: var(--accent); color: var(--accent); }
 .edit-mode-btn.active { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
 
+/* STALE WARNING BANNER */
+.stale-banner {
+  display: none; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 9px 28px;
+  background: var(--amber-bg); border-bottom: 1px solid var(--amber-bd);
+  font-size: 0.8rem; color: var(--amber);
+}
+.stale-banner.visible { display: flex; }
+.stale-banner strong { font-weight: 700; }
+.stale-dismiss {
+  background: none; border: 1px solid var(--amber-bd); border-radius: 4px;
+  color: var(--amber); font-size: 0.72rem; font-weight: 600;
+  padding: 2px 10px; cursor: pointer; white-space: nowrap;
+  font-family: 'Source Sans 3', sans-serif; transition: all 0.15s; flex-shrink: 0;
+}
+.stale-dismiss:hover { background: var(--amber-bd); }
+
+/* SORTABLE COLUMN HEADERS */
+.inv-table th.sortable {
+  cursor: pointer; user-select: none;
+  transition: color 0.15s;
+}
+.inv-table th.sortable:hover { color: var(--ink2); }
+.inv-table th.sort-active { color: var(--accent); }
+.sort-arrow { margin-left: 4px; font-size: 0.6rem; opacity: 0.7; }
+.bulk-par-bar {
+  display: none; align-items: center; gap: 10px;
+  padding: 8px 0 16px; flex-wrap: wrap;
+}
+.bulk-par-bar.visible { display: flex; }
+.bulk-par-label {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--ink4); white-space: nowrap;
+}
+.bulk-par-input {
+  width: 64px; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 5px; padding: 5px 8px; font-size: 0.88rem; font-weight: 700;
+  color: var(--ink); font-family: 'Source Sans 3', sans-serif;
+  outline: none; text-align: center; transition: border-color 0.15s;
+  -moz-appearance: textfield;
+}
+.bulk-par-input::-webkit-outer-spin-button,
+.bulk-par-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.bulk-par-input:focus { border-color: var(--accent); }
+.bulk-par-btn {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--ink3); font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+  padding: 5px 14px; border-radius: 5px; cursor: pointer;
+  transition: all 0.15s; white-space: nowrap;
+}
+.bulk-par-btn:hover { border-color: var(--accent); color: var(--accent); }
+
 .theme-btn {
   width: 32px; height: 32px; border-radius: 50%;
   background: var(--bg3); border: 1px solid var(--border2);
@@ -665,9 +718,96 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
   font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
   color: var(--ink3); background: var(--bg3);
   border: 1px solid var(--border); border-radius: 20px;
-  padding: 3px 10px; cursor: default; user-select: all;
-  white-space: nowrap;
+  padding: 3px 10px; cursor: pointer; user-select: none;
+  white-space: nowrap; transition: border-color 0.15s;
 }
+.room-badge:hover { border-color: var(--accent); color: var(--accent); }
+.room-code-sub {
+  font-size: 0.6rem; font-weight: 600; letter-spacing: 0.12em;
+  color: var(--ink4); opacity: 0.8;
+}
+
+/* ONLINE INDICATOR */
+.online-pill {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+  color: var(--green); background: var(--green-bg);
+  border: 1px solid var(--green-bd); border-radius: 20px;
+  padding: 3px 10px; white-space: nowrap; cursor: pointer;
+  transition: all 0.15s; position: relative;
+}
+.online-pill:hover { border-color: var(--green); }
+.online-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.online-dropdown {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 8px 0; min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 200;
+  display: none;
+}
+.online-dropdown.open { display: block; }
+.online-dropdown-title {
+  font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--ink4); padding: 4px 14px 8px;
+}
+.online-user {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px; font-size: 0.82rem; color: var(--ink2);
+}
+.online-user-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+.online-you { color: var(--ink4); font-size: 0.7rem; }
+
+/* SETTINGS MODAL */
+.settings-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-overlay.hidden { display: none; }
+.settings-modal {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 32px 36px; width: 400px; max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+}
+.settings-modal-title {
+  font-family: 'Lora', serif; font-size: 1.1rem; font-weight: 700;
+  color: var(--accent); margin-bottom: 24px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.settings-close {
+  background: none; border: none; color: var(--ink4);
+  font-size: 1rem; cursor: pointer; padding: 0;
+  font-family: 'Source Sans 3', sans-serif;
+  transition: color 0.15s;
+}
+.settings-close:hover { color: var(--red); }
+.settings-field { margin-bottom: 16px; }
+.settings-label {
+  font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--ink4); margin-bottom: 6px;
+}
+.settings-label-hint { font-weight: 400; text-transform: none; letter-spacing: 0; }
+.settings-input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border);
+  border-radius: 6px; padding: 9px 12px; font-size: 0.9rem;
+  color: var(--ink); font-family: 'Source Sans 3', sans-serif;
+  outline: none; transition: border-color 0.15s;
+}
+.settings-input:focus { border-color: var(--accent); }
+.settings-actions { display: flex; gap: 8px; margin-top: 24px; }
+.settings-btn {
+  flex: 1; padding: 10px; border-radius: 6px; border: none;
+  font-family: 'Source Sans 3', sans-serif; font-size: 0.85rem;
+  font-weight: 700; letter-spacing: 0.05em; cursor: pointer;
+  transition: opacity 0.15s;
+}
+.settings-btn:hover { opacity: 0.85; }
+.settings-btn-save { background: var(--accent); color: #fff; }
+.settings-btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd) !important; }
+.settings-divider {
+  height: 1px; background: var(--border); margin: 20px 0;
+}
+.settings-error { font-size: 0.78rem; color: var(--red); margin-top: 8px; min-height: 18px; }
 .sync-dot {
   width: 7px; height: 7px; border-radius: 50%;
   background: var(--green); flex-shrink: 0;
@@ -682,11 +822,6 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
   transition: color 0.15s;
 }
 .leave-btn:hover { color: var(--red); }
-code {
-  font-family: 'Courier New', monospace; font-size: 0.8em;
-  background: var(--bg3); border: 1px solid var(--border);
-  border-radius: 3px; padding: 1px 5px; color: var(--ink2);
-}
 </style>
 </head>
 <body>
@@ -698,6 +833,7 @@ code {
     <div class="room-modal-sub">Rooms let your whole guild share one live inventory. Create a new room or join your guild's existing one using their code and password.</div>
 
     <div class="room-section-label">Create a new room</div>
+    <input class="room-input" id="createNameInput" placeholder="Guild name (e.g. Wolfsblood)" maxlength="32" onkeydown="if(event.key==='Enter')createRoom()"/>
     <input class="room-input room-input-password" id="createPasswordInput" type="password" placeholder="Set a room password" onkeydown="if(event.key==='Enter')createRoom()"/>
     <button class="room-btn room-btn-primary" onclick="createRoom()" id="createRoomBtn">Create Room</button>
 
@@ -711,23 +847,55 @@ code {
     <div class="room-error" id="roomError"></div>
   </div>
 </div>
+<!-- SETTINGS MODAL -->
+<div class="settings-overlay hidden" id="settingsOverlay">
+  <div class="settings-modal">
+    <div class="settings-modal-title">
+      Room Settings
+      <button class="settings-close" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-field">
+      <div class="settings-label">Guild Name</div>
+      <input class="settings-input" id="settingsNameInput" type="text" maxlength="32" placeholder="Guild name"/>
+    </div>
+    <div class="settings-field">
+      <div class="settings-label">New Password <span class="settings-label-hint">(leave blank to keep current)</span></div>
+      <input class="settings-input" id="settingsPasswordInput" type="password" placeholder="New password"/>
+    </div>
+    <div class="settings-error" id="settingsError"></div>
+    <div class="settings-actions">
+      <button class="settings-btn settings-btn-save" onclick="saveSettings()">Save Changes</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-actions">
+      <button class="settings-btn settings-btn-danger" onclick="resetInventory()">Reset All Inventory to Zero</button>
+    </div>
+  </div>
+</div>
 <nav>
   <div class="nav-logo">
     ⚔ Regear Dashboard
     <span class="sep">·</span>
     <span class="sub">Guild Inventory Tracker · v1.2.0</span>
+    <span class="sep">·</span>
+    <span class="save-timestamp" id="saveTimestamp">Not synced</span>
   </div>
   <div class="nav-right">
-    <div class="room-badge" id="roomBadge" title="Your room code — share this with guildmates">
-      <span class="sync-dot" id="syncDot"></span>
-      <span id="roomCodeLabel">—</span>
-      <button class="leave-btn" onclick="leaveRoom()" title="Leave room">✕</button>
+    <div class="online-pill" id="onlinePill" onclick="toggleOnlineDropdown()" title="Who's online">
+      <span class="online-dot"></span>
+      <span id="onlineCount">1</span> online
+      <div class="online-dropdown" id="onlineDropdown">
+        <div class="online-dropdown-title">Online now</div>
+        <div id="onlineList"></div>
+      </div>
     </div>
-    <span class="save-timestamp" id="saveTimestamp">Not synced</span>
-    <button class="nav-btn" onclick="exportData()">Export</button>
-    <button class="nav-btn" onclick="document.getElementById('importFile').click()">Import</button>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)"/>
-    <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">✎ Edit Items</button>
+    <div class="room-badge" id="roomBadge" title="Click to copy room code" onclick="copyRoomCode()">
+      <span class="sync-dot" id="syncDot"></span>
+      <span id="roomNameLabel">—</span>
+      <span class="room-code-sub" id="roomCodeLabel"></span>
+      <button class="leave-btn" onclick="event.stopPropagation();leaveRoom()" title="Leave room">✕</button>
+    </div>
+    <button class="nav-btn" onclick="openSettings()" id="settingsBtn">⚙ Settings</button>
     <button class="theme-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode">D</button>
   </div>
 </nav>
@@ -739,6 +907,14 @@ code {
   <div class="tab" onclick="switchTab('t9',this)">Tier 9</div>
   <div class="tab" onclick="switchTab('buyorders',this)">Buy Orders</div>
   <div class="tab" onclick="switchTab('crafters',this)">Crafters</div>
+  <div class="tab-room-status">
+    <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">✎ Edit Items</button>
+  </div>
+</div>
+
+<div class="stale-banner" id="staleBanner">
+  <span>⚠ This room hasn't been updated in over 30 days — the data may be out of date.</span>
+  <button class="stale-dismiss" onclick="document.getElementById('staleBanner').classList.remove('visible')">Dismiss</button>
 </div>
 
 <main>
@@ -758,6 +934,13 @@ code {
       <button class="fbtn"         id="t7-f-Hunter"   onclick="setFilter('T7','Hunter')">Hunter</button>
       <button class="fbtn"         id="t7-f-Mage"     onclick="setFilter('T7','Mage')">Mage</button>
     </div>
+    <div class="bulk-par-bar" id="bulk-par-T7">
+      <span class="bulk-par-label">Set par to</span>
+      <input class="bulk-par-input" type="number" id="bulk-par-val-T7" value="5" min="0"/>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T7','cat')">This Category</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T7','tier')">All T7</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T7','all')">All Tiers</button>
+    </div>
     <div id="inv-t7"></div>
   </div>
 
@@ -773,6 +956,13 @@ code {
       <button class="fbtn"         id="t8-f-Hunter"   onclick="setFilter('T8','Hunter')">Hunter</button>
       <button class="fbtn"         id="t8-f-Mage"     onclick="setFilter('T8','Mage')">Mage</button>
     </div>
+    <div class="bulk-par-bar" id="bulk-par-T8">
+      <span class="bulk-par-label">Set par to</span>
+      <input class="bulk-par-input" type="number" id="bulk-par-val-T8" value="5" min="0"/>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T8','cat')">This Category</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T8','tier')">All T8</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T8','all')">All Tiers</button>
+    </div>
     <div id="inv-t8"></div>
   </div>
 
@@ -787,6 +977,13 @@ code {
       <button class="fbtn"         id="t9-f-Warrior"  onclick="setFilter('T9','Warrior')">Warrior</button>
       <button class="fbtn"         id="t9-f-Hunter"   onclick="setFilter('T9','Hunter')">Hunter</button>
       <button class="fbtn"         id="t9-f-Mage"     onclick="setFilter('T9','Mage')">Mage</button>
+    </div>
+    <div class="bulk-par-bar" id="bulk-par-T9">
+      <span class="bulk-par-label">Set par to</span>
+      <input class="bulk-par-input" type="number" id="bulk-par-val-T9" value="5" min="0"/>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T9','cat')">This Category</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T9','tier')">All T9</button>
+      <button class="bulk-par-btn" onclick="bulkSetPar('T9','all')">All Tiers</button>
     </div>
     <div id="inv-t9"></div>
   </div>
@@ -1566,6 +1763,7 @@ const INIT = {
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data     = JSON.parse(JSON.stringify(INIT));
 let filters  = { T7:'all', T8:'all', T9:'all' };
+let sorts    = { T7: { field: null, dir: 1 }, T8: { field: null, dir: 1 }, T9: { field: null, dir: 1 } };
 let editMode = false;
 const TIERS  = ['T7','T8','T9'];
 const need   = i => Math.max(0, i.par - i.have);
@@ -1605,7 +1803,33 @@ function toggleEditMode() {
   const btn = document.getElementById('editModeBtn');
   btn.classList.toggle('active', editMode);
   btn.textContent = editMode ? '✎ Done Editing' : '✎ Edit Items';
-  TIERS.forEach(t => renderTier(t));
+  for (const tier of TIERS) {
+    document.getElementById(`bulk-par-${tier}`)?.classList.toggle('visible', editMode);
+  }
+  renderData();
+}
+
+function bulkSetPar(sourceTier, scope) {
+  const val = parseInt(document.getElementById(`bulk-par-val-${sourceTier}`).value, 10);
+  if (isNaN(val) || val < 0) return;
+
+  const tiersToUpdate = scope === 'all' ? TIERS : [sourceTier];
+  const catFilter = filters[sourceTier]; // 'all' or a specific category name
+  for (const tier of tiersToUpdate) {
+    for (const [cat, items] of Object.entries(data[tier])) {
+      if (scope === 'cat' && catFilter !== 'all' && cat !== catFilter) continue;
+      for (const item of items) {
+        if (!item.hidden) item.par = val;
+      }
+    }
+  }
+  renderData();
+  scheduleSave();
+  let scopeLabel;
+  if (scope === 'cat')       scopeLabel = catFilter === 'all' ? `all ${sourceTier}` : `${catFilter} (${sourceTier})`;
+  else if (scope === 'tier') scopeLabel = `all ${sourceTier}`;
+  else                       scopeLabel = 'all tiers';
+  showToast(`Par set to ${val} for ${scopeLabel}`);
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────
@@ -1623,6 +1847,13 @@ function setFilter(tier, f) {
   ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
     document.getElementById(`${t}-f-${x}`)?.classList.toggle('active', x === f);
   });
+  renderTier(tier);
+}
+
+function setSort(tier, field) {
+  const s = sorts[tier];
+  if (s.field === field) s.dir *= -1;
+  else { s.field = field; s.dir = 1; }
   renderTier(tier);
 }
 
@@ -1659,6 +1890,8 @@ function renderTier(tier) {
 
     const block = document.createElement('div');
     block.className = 'cat-block';
+    const s = sorts[tier];
+    const arrow = (f) => s.field === f ? `<span class="sort-arrow">${s.dir > 0 ? '▲' : '▼'}</span>` : '';
     block.innerHTML = `
       <div class="cat-heading">
         ${cat}
@@ -1667,9 +1900,9 @@ function renderTier(tier) {
       <table class="inv-table">
         <thead><tr>
           <th>Item</th>
-          <th class="ctr">Have</th>
-          <th class="ctr">Par</th>
-          <th class="ctr">Need</th>
+          <th class="ctr sortable ${s.field==='have'?'sort-active':''}" onclick="setSort('${tier}','have')">Have${arrow('have')}</th>
+          <th class="ctr sortable ${s.field==='par' ?'sort-active':''}" onclick="setSort('${tier}','par')">Par${arrow('par')}</th>
+          <th class="ctr sortable ${s.field==='need'?'sort-active':''}" onclick="setSort('${tier}','need')">Need${arrow('need')}</th>
           <th class="ctr">Priority</th>
           <th class="ctr">Craft</th>
           ${editMode ? '<th class="ctr">Hide</th>' : ''}
@@ -1681,8 +1914,19 @@ function renderTier(tier) {
     const tbody = document.getElementById(`tb-${tier}-${catKey}`);
     const frag  = document.createDocumentFragment();
 
-    for (const [actualIdx, item] of items.entries()) {
-      if (!editMode && item.hidden) continue;
+    // Build sortable index array without mutating original
+    let idxs = items.map((item, i) => i).filter(i => editMode || !items[i].hidden);
+    if (s.field) {
+      idxs.sort((a, b) => {
+        const ia = items[a], ib = items[b];
+        const va = s.field === 'need' ? need(ia) : ia[s.field];
+        const vb = s.field === 'need' ? need(ib) : ib[s.field];
+        return (va - vb) * s.dir;
+      });
+    }
+
+    for (const actualIdx of idxs) {
+      const item = items[actualIdx];
       const n  = need(item);
       const rc = item.hidden
         ? 'row-hidden'
@@ -1695,14 +1939,14 @@ function renderTier(tier) {
       tr.innerHTML = `
         <td class="td-name">${item.name}</td>
         <td class="td-ctr td-have"><div class="ticker">
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'have',-1)">−</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'have',-1,event)" title="−1  (Shift: −10)">−</button>
           <input class="tick-val" type="number" value="${item.have}" min="0" onchange="setV('${tier}','${cat}',${actualIdx},'have',this.value)"/>
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'have',1)">+</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'have',1,event)" title="+1  (Shift: +10)">+</button>
         </div></td>
         <td class="td-ctr td-par"><div class="ticker">
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',-1)">−</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',-1,event)" title="−1  (Shift: −10)">−</button>
           <input class="tick-val" type="number" value="${item.par}" min="0" onchange="setV('${tier}','${cat}',${actualIdx},'par',this.value)"/>
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',1)">+</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',1,event)" title="+1  (Shift: +10)">+</button>
         </div></td>
         <td class="td-ctr"><span class="${n>0?'need-pos':'need-zero'}">${n>0?n:'—'}</span></td>
         <td><div class="flag-wrap"><span class="flag-toggle ${item.priority?'on-pri':''}" onclick="toggleF('${tier}','${cat}',${actualIdx},'priority')">${item.priority?'★ PRI':'PRI'}</span></div></td>
@@ -1726,8 +1970,9 @@ function statCard(bar, valCls, label, val, sub) {
 }
 
 // ── MUTATIONS ─────────────────────────────────────────────────────────────
-function adj(tier, cat, idx, field, d) {
-  data[tier][cat][idx][field] = Math.max(0, data[tier][cat][idx][field] + d);
+function adj(tier, cat, idx, field, d, event) {
+  const mult = event?.shiftKey ? 10 : 1;
+  data[tier][cat][idx][field] = Math.max(0, data[tier][cat][idx][field] + d * mult);
   renderData(); scheduleSave();
 }
 function setV(tier, cat, idx, field, v) {
@@ -1746,6 +1991,7 @@ function toggleCrafterAssignment(tier, cat, itemName, crafterName) {
   const key = `${tier}-${cat}-${itemName}`;
   crafterAssignments[key] = crafterAssignments[key] === crafterName ? null : crafterName;
   renderBuyOrders();
+  saveToStorage();
 }
 
 function renderBuyOrders() {
@@ -2045,9 +2291,11 @@ function renderSummary() {
         <div class="guide-section-title">Getting Started</div>
         <div class="guide-rows">
           <div class="guide-row">Browse <strong>Tier 7, 8, or 9</strong> tabs to see all tracked gear and weapons.</div>
-          <div class="guide-row">Use the <strong>Have</strong> ticker to record how many of each item you currently have in stock.</div>
+          <div class="guide-row">Use the <strong>Have</strong> ticker to record how many of each item you currently have in stock. <strong>Shift+click</strong> any <span class="guide-badge gb-amber">+ / −</span> button to adjust by 10 at a time.</div>
           <div class="guide-row">Set a <strong>Par</strong> value for each item — this is your target quantity. The <strong>Need</strong> column calculates automatically.</div>
           <div class="guide-row">Use the <strong>category filter bar</strong> to quickly jump to Helmets, Warrior weapons, Mage staves, etc.</div>
+          <div class="guide-row">Click the <strong>Have, Par, or Need</strong> column headers to sort — click again to reverse. Sorting is per-tier and persists while you browse categories.</div>
+          <div class="guide-row"><strong>Keyboard shortcuts:</strong> <strong>1–6</strong> switch tabs · <strong>E</strong> toggle Edit Mode (on tier tabs) · <strong>D</strong> toggle dark mode.</div>
         </div>
       </div>
       <div class="guide-section">
@@ -2080,18 +2328,20 @@ function renderSummary() {
       <div class="guide-section">
         <div class="guide-section-title">Edit Mode</div>
         <div class="guide-rows">
-          <div class="guide-row">Click <strong>✎ Edit Items</strong> in the top bar to reveal the <strong>Hide</strong> column.</div>
+          <div class="guide-row">Click <strong>✎ Edit Items</strong> in the tab bar to reveal the <strong>Hide</strong> column and the <strong>bulk par setter</strong>.</div>
           <div class="guide-row"><span class="guide-badge gb-amber">Hide</span> Toggle <strong>Hide</strong> to remove items your guild doesn't use — they'll be excluded from all counts and buy orders.</div>
           <div class="guide-row">Hidden items are shown as faded striped rows in Edit Mode so you can always re-enable them.</div>
+          <div class="guide-row">Use the <strong>bulk par setter</strong> to set par for the current category, the whole tier, or all tiers at once in one click.</div>
         </div>
       </div>
       <div class="guide-section">
         <div class="guide-section-title">Saving & Sharing</div>
         <div class="guide-rows">
-          <div class="guide-row">All changes are <strong>auto-saved</strong> to your browser. The timestamp in the top bar shows when data was last saved.</div>
-          <div class="guide-row">Click <strong>Export</strong> to download a <code>.json</code> snapshot of all your inventory, par values, flags, and crafter assignments.</div>
-          <div class="guide-row">Click <strong>Import</strong> to load a saved file — useful for <strong>sharing data between officers</strong> or backing up before major changes.</div>
-          <div class="guide-row">Imported data <strong>merges safely</strong> — existing entries are updated while any items not in the file are left untouched.</div>
+          <div class="guide-row">All changes are <strong>automatically synced</strong> to your guild's room in real time — every officer sees updates instantly.</div>
+          <div class="guide-row">Click the <strong>room badge</strong> in the top bar to copy your room code. Share the code and password with your officers so they can join.</div>
+          <div class="guide-row">Use <strong>⚙ Settings</strong> to rename your room, change the password, or reset all inventory to zero.</div>
+          <div class="guide-row">The <strong>who's online</strong> indicator shows how many guildmates are currently viewing the room.</div>
+          <div class="guide-row">If a room hasn't been updated in over <strong>30 days</strong>, a warning banner will appear when you rejoin — a prompt to check the data is still current before a raid.</div>
         </div>
       </div>
     </div>`;
@@ -2468,33 +2718,6 @@ function exportBuyOrders() {
   showToast('Buy Orders exported!');
 }
 
-function exportData() {
-  const blob = new Blob([JSON.stringify({ data, crafters }, null, 2)], { type: 'application/json' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `regear-${new Date().toISOString().slice(0, 10)}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('Exported!');
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      mergeData(JSON.parse(e.target.result));
-      saveToStorage();
-      renderAll();
-      showToast('Imported!');
-    } catch { showToast('Invalid file', true); }
-    event.target.value = '';
-  };
-  reader.readAsText(file);
-}
-
 // ── SUPABASE CONFIG ───────────────────────────────────────────────────────
 // Replace these with your own Supabase project URL and anon key
 const SUPABASE_URL = 'https://kwqijnfktdtxibkiudpi.supabase.co';
@@ -2505,7 +2728,6 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 // ── ROOM STATE ────────────────────────────────────────────────────────────
 let currentRoom   = null;
 let realtimeSub   = null;
-let isSyncing     = false;
 
 function setSyncState(state) {
   // state: 'ok' | 'syncing' | 'error'
@@ -2528,7 +2750,9 @@ async function hashPassword(password) {
 }
 
 async function createRoom() {
+  const name     = document.getElementById('createNameInput').value.trim();
   const password = document.getElementById('createPasswordInput').value.trim();
+  if (!name)     { setRoomError('Please enter a name for your guild room.'); return; }
   if (!password) { setRoomError('Please set a password for your room.'); return; }
 
   const btn = document.getElementById('createRoomBtn');
@@ -2540,11 +2764,12 @@ async function createRoom() {
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const payload = buildPayload();
-    const { error } = await sb.from('rooms').insert({ code, payload, password_hash });
+    const { error } = await sb.from('rooms').insert({ code, name, payload, password_hash });
     if (!error) {
       localStorage.setItem('regear-room', code);
       localStorage.setItem('regear-pass', password_hash);
-      enterRoom(code);
+      localStorage.setItem('regear-name', name);
+      enterRoom(code, name);
       return;
     }
     if (error.code === '23505') { code = generateRoomCode(); continue; }
@@ -2565,7 +2790,7 @@ async function joinRoom() {
   document.getElementById('joinCodeInput').disabled    = true;
   document.getElementById('joinPasswordInput').disabled = true;
 
-  const { data, error } = await sb.from('rooms').select('payload, password_hash').eq('code', code).single();
+  const { data, error } = await sb.from('rooms').select('payload, password_hash, name').eq('code', code).single();
   if (error || !data) {
     setRoomError('Room not found. Double-check the code.');
     document.getElementById('joinCodeInput').disabled    = false;
@@ -2583,34 +2808,55 @@ async function joinRoom() {
 
   localStorage.setItem('regear-room', code);
   localStorage.setItem('regear-pass', password_hash);
+  localStorage.setItem('regear-name', data.name || code);
   mergeData(data.payload);
-  enterRoom(code);
+  enterRoom(code, data.name || code);
 }
 
-function enterRoom(code) {
+function enterRoom(code, name) {
   currentRoom = code;
   localStorage.setItem('regear-room', code);
   document.getElementById('roomOverlay').classList.add('hidden');
-  document.getElementById('roomCodeLabel').textContent = code;
+  document.getElementById('roomNameLabel').textContent = name || code;
+  document.getElementById('roomCodeLabel').textContent = name ? code : '';
   setSyncState('ok');
   subscribeToRoom(code);
   renderAll();
   updateTimestamp(new Date());
 }
 
+function copyRoomCode() {
+  if (!currentRoom) return;
+  navigator.clipboard.writeText(currentRoom)
+    .then(() => showToast('Room code copied!'))
+    .catch(() => showToast('Could not copy', true));
+}
+
 function leaveRoom() {
   if (!confirm('Leave this room? Your local view will be cleared.')) return;
-  if (realtimeSub) { sb.removeChannel(realtimeSub); realtimeSub = null; }
+  if (realtimeSub)    { sb.removeChannel(realtimeSub);    realtimeSub    = null; }
+  if (presenceChannel){ sb.removeChannel(presenceChannel); presenceChannel = null; }
   currentRoom = null;
   localStorage.removeItem('regear-room');
   localStorage.removeItem('regear-pass');
-  document.getElementById('roomCodeLabel').textContent = '—';
+  localStorage.removeItem('regear-name');
+  document.getElementById('roomNameLabel').textContent = '—';
+  document.getElementById('roomCodeLabel').textContent = '';
+  document.getElementById('staleBanner').classList.remove('visible');
   document.getElementById('roomOverlay').classList.remove('hidden');
   document.getElementById('saveTimestamp').textContent = 'Not synced';
   // Reset data to blank
   Object.assign(data, JSON.parse(JSON.stringify(INIT)));
   Object.keys(crafterAssignments).forEach(k => delete crafterAssignments[k]);
   for (const id of Object.keys(crafters)) crafters[id] = [];
+  // Reset UI state
+  if (editMode) {
+    editMode = false;
+    const btn = document.getElementById('editModeBtn');
+    btn.classList.remove('active');
+    btn.textContent = '✎ Edit Items';
+    TIERS.forEach(t => document.getElementById(`bulk-par-${t}`)?.classList.remove('visible'));
+  }
 }
 
 function setRoomError(msg) {
@@ -2618,10 +2864,31 @@ function setRoomError(msg) {
 }
 
 // ── REALTIME ──────────────────────────────────────────────────────────────
+let presenceChannel = null;
+let myUsername = null;
+
+function getUsername() {
+  // Generate a persistent anonymous username for this browser session
+  let name = localStorage.getItem('regear-username');
+  if (!name) {
+    const adjectives = ['Swift','Iron','Bold','Dark','Keen','Wild','Grim','Sage'];
+    const nouns      = ['Blade','Shield','Arrow','Rune','Claw','Fang','Ward','Helm'];
+    name = adjectives[Math.floor(Math.random()*adjectives.length)] +
+           nouns[Math.floor(Math.random()*nouns.length)] +
+           Math.floor(Math.random()*99+1);
+    localStorage.setItem('regear-username', name);
+  }
+  return name;
+}
+
 function subscribeToRoom(code) {
   if (realtimeSub) sb.removeChannel(realtimeSub);
+  if (presenceChannel) sb.removeChannel(presenceChannel);
 
-  realtimeSub = sb.channel(`room-${code}`)
+  myUsername = getUsername();
+
+  // Data sync channel
+  realtimeSub = sb.channel(`room-data-${code}`)
     .on('postgres_changes', {
       event: 'UPDATE',
       schema: 'public',
@@ -2635,6 +2902,91 @@ function subscribeToRoom(code) {
       setSyncState('ok');
     })
     .subscribe();
+
+  // Presence channel
+  presenceChannel = sb.channel(`room-presence-${code}`, {
+    config: { presence: { key: myUsername } }
+  })
+    .on('presence', { event: 'sync' }, () => updateOnlineList())
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({ username: myUsername, online_at: new Date().toISOString() });
+      }
+    });
+}
+
+function updateOnlineList() {
+  if (!presenceChannel) return;
+  const state = presenceChannel.presenceState();
+  const users = Object.values(state).map(arr => arr[0]?.username).filter(Boolean);
+  document.getElementById('onlineCount').textContent = users.length;
+  document.getElementById('onlineList').innerHTML = users
+    .map(u => `<div class="online-user"><span class="online-user-dot"></span>${u}${u === myUsername ? ' <span class="online-you">(you)</span>' : ''}</div>`)
+    .join('');
+}
+
+function toggleOnlineDropdown() {
+  document.getElementById('onlineDropdown').classList.toggle('open');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e => {
+  const pill = document.getElementById('onlinePill');
+  if (pill && !pill.contains(e.target)) {
+    document.getElementById('onlineDropdown')?.classList.remove('open');
+  }
+});
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────
+function openSettings() {
+  document.getElementById('settingsNameInput').value    = localStorage.getItem('regear-name') || '';
+  document.getElementById('settingsPasswordInput').value = '';
+  document.getElementById('settingsError').textContent  = '';
+  document.getElementById('settingsOverlay').classList.remove('hidden');
+}
+
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.add('hidden');
+}
+
+async function saveSettings() {
+  const newName     = document.getElementById('settingsNameInput').value.trim();
+  const newPassword = document.getElementById('settingsPasswordInput').value.trim();
+
+  if (!newName) { document.getElementById('settingsError').textContent = 'Guild name cannot be empty.'; return; }
+  if (!currentRoom) return;
+
+  const update = { name: newName };
+  if (newPassword) update.password_hash = await hashPassword(newPassword);
+
+  const { error } = await sb.from('rooms').update(update).eq('code', currentRoom);
+  if (error) { document.getElementById('settingsError').textContent = 'Failed to save. Try again.'; return; }
+
+  localStorage.setItem('regear-name', newName);
+  if (newPassword) localStorage.setItem('regear-pass', update.password_hash);
+  document.getElementById('roomNameLabel').textContent = newName;
+  closeSettings();
+  showToast('Settings saved!');
+}
+
+async function resetInventory() {
+  if (!confirm('Reset ALL inventory counts, par values, and flags to zero? This cannot be undone.')) return;
+  if (!currentRoom) return;
+
+  // Reset local state
+  for (const tier of TIERS) {
+    for (const items of Object.values(data[tier])) {
+      for (const item of items) {
+        item.have = 0; item.par = 0; item.priority = false; item.craft = false; item.hidden = false;
+      }
+    }
+  }
+  Object.keys(crafterAssignments).forEach(k => delete crafterAssignments[k]);
+
+  await saveToStorage();
+  renderAll();
+  closeSettings();
+  showToast('Inventory reset!');
 }
 
 // ── PERSISTENCE ───────────────────────────────────────────────────────────
@@ -2663,6 +3015,7 @@ function mergeData(saved) {
     }
   }
   if (saved.crafterAssignments) {
+    Object.keys(crafterAssignments).forEach(k => delete crafterAssignments[k]);
     Object.assign(crafterAssignments, saved.crafterAssignments);
   }
   if (saved.crafters) {
@@ -2701,16 +3054,26 @@ function updateTimestamp(date) {
 async function tryRejoinRoom() {
   const code          = localStorage.getItem('regear-room');
   const password_hash = localStorage.getItem('regear-pass');
+  const name          = localStorage.getItem('regear-name');
   if (!code || !password_hash) return false;
 
-  const { data: row, error } = await sb.from('rooms').select('payload, password_hash').eq('code', code).single();
+  const { data: row, error } = await sb.from('rooms').select('payload, password_hash, name, last_active').eq('code', code).single();
   if (error || !row || row.password_hash !== password_hash) {
     localStorage.removeItem('regear-room');
     localStorage.removeItem('regear-pass');
+    localStorage.removeItem('regear-name');
     return false;
   }
+
+  if (row.last_active) {
+    const daysSince = (Date.now() - new Date(row.last_active).getTime()) / 86400000;
+    if (daysSince > 30) {
+      document.getElementById('staleBanner').classList.add('visible');
+    }
+  }
+
   mergeData(row.payload);
-  enterRoom(code);
+  enterRoom(code, row.name || name || code);
   return true;
 }
 
@@ -2733,6 +3096,27 @@ if (localStorage.getItem('regear-theme') === 'dark') {
   document.body.classList.add('dark');
   document.getElementById('themeBtn').textContent = 'L';
 }
+
+// ── KEYBOARD SHORTCUTS ────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  // Don't fire when typing in an input, textarea, or select
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  // Don't fire with modifier keys
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+  const tabMap = { '1': 'summary', '2': 't7', '3': 't8', '4': 't9', '5': 'buyorders', '6': 'crafters' };
+  if (tabMap[e.key]) {
+    const tabEl = document.querySelector(`.tab:nth-child(${Object.keys(tabMap).indexOf(e.key) + 1})`);
+    if (tabEl) { switchTab(tabMap[e.key], tabEl); e.preventDefault(); }
+  } else if (e.key === 'e' || e.key === 'E') {
+    // Only in tier tabs
+    const active = document.querySelector('.tab-content.active');
+    if (active && ['tab-t7','tab-t8','tab-t9'].includes(active.id)) toggleEditMode();
+  } else if (e.key === 'd' || e.key === 'D') {
+    toggleTheme();
+  }
+});
 
 // Try to rejoin a previous room, else show the modal
 tryRejoinRoom().then(rejoined => {
