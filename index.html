@@ -161,6 +161,7 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
 }
 .fbtn:hover { border-color: var(--border2); color: var(--ink2); }
 .fbtn.active           { background: var(--accent); border-color: var(--accent); color: #fff; }
+#os-filter-bar { justify-content: center; }
 
 .cat-block { margin-bottom: 32px; }
 .cat-heading {
@@ -452,7 +453,6 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
 }
 .fill-ok      { background: var(--green); }
 .fill-warn    { background: var(--amber); }
-.fill-c-amber { background: var(--amber); }
 .fill-crit    { background: var(--red); }
 .summary-progress-pct {
   font-size: 0.72rem; font-weight: 700;
@@ -963,6 +963,10 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
 .settings-btn:hover { opacity: 0.85; }
 .settings-btn-save { background: var(--accent); color: #fff; }
 .settings-btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd) !important; }
+.settings-btn-warn  { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd) !important; }
+.settings-backup-list { display: flex; flex-direction: column; gap: 6px; }
+.settings-backup-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.8rem; color: var(--ink3); }
+.settings-backup-row .settings-btn { font-size: 0.72rem; padding: 3px 10px; }
 .settings-divider {
   height: 1px; background: var(--border); margin: 20px 0;
 }
@@ -981,6 +985,26 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
   transition: color 0.15s;
 }
 .leave-btn:hover { color: var(--red); }
+
+/* ── CRAFTER ROLE ─────────────────────────────────────── */
+/* Hide tabs crafters can't see */
+body[data-role="crafter"] .tab:nth-child(2),
+body[data-role="crafter"] .tab:nth-child(3),
+body[data-role="crafter"] .tab:nth-child(4),
+body[data-role="crafter"] .tab:nth-child(7) { display: none; }
+/* Hide officer-only nav buttons */
+body[data-role="crafter"] #settingsBtn,
+body[data-role="crafter"] #editModeBtn { display: none; }
+/* Hide have/par tickers and flag toggles on tier tabs */
+body[data-role="crafter"] .tick-wrap,
+body[data-role="crafter"] .flag-wrap { pointer-events: none; opacity: 0.4; }
+body[data-role="crafter"] .crafter-tag { pointer-events: none; cursor: default; }
+/* Role badge */
+.role-badge {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 10px;
+  background: var(--amber-bg); border: 1px solid var(--amber-bd); color: var(--amber);
+}
 </style>
 </head>
 <body>
@@ -1028,8 +1052,12 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
       <input class="settings-input" id="settingsNameInput" type="text" maxlength="32" placeholder="Guild name"/>
     </div>
     <div class="settings-field">
-      <div class="settings-label">New Password <span class="settings-label-hint">(leave blank to keep current)</span></div>
-      <input class="settings-input" id="settingsPasswordInput" type="password" placeholder="New password"/>
+      <div class="settings-label">New Officer Password <span class="settings-label-hint">(leave blank to keep current)</span></div>
+      <input class="settings-input" id="settingsPasswordInput" type="password" placeholder="New officer password"/>
+    </div>
+    <div class="settings-field">
+      <div class="settings-label">Crafter Password <span class="settings-label-hint">(leave blank to keep current — set one to enable crafter access)</span></div>
+      <input class="settings-input" id="settingsCrafterPasswordInput" type="password" placeholder="Crafter password"/>
     </div>
     <div class="settings-error" id="settingsError"></div>
     <div class="settings-actions">
@@ -1038,6 +1066,11 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
     <div class="settings-divider"></div>
     <div class="settings-actions">
       <button class="settings-btn settings-btn-danger" onclick="resetInventory()">Reset All Inventory to Zero</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-field">
+      <div class="settings-label">Backups <span class="settings-label-hint">(saved on room load)</span></div>
+      <div class="settings-backup-list" id="backupList"></div>
     </div>
   </div>
 </div>
@@ -1167,10 +1200,30 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
     <div id="inv-t9"></div>
   </div>
   <div class="tab-content" id="tab-buyorders">
+    <div class="filter-bar" id="bo-filter-bar">
+      <button class="fbtn active" id="bo-f-all"      onclick="setFilterBO('all')">All</button>
+      <button class="fbtn"        id="bo-f-Helmet"   onclick="setFilterBO('Helmet')">Helmet</button>
+      <button class="fbtn"        id="bo-f-Jacket"   onclick="setFilterBO('Jacket')">Jacket</button>
+      <button class="fbtn"        id="bo-f-Shoes"    onclick="setFilterBO('Shoes')">Shoes</button>
+      <button class="fbtn"        id="bo-f-Offhands" onclick="setFilterBO('Offhands')">Offhands</button>
+      <button class="fbtn"        id="bo-f-Warrior"  onclick="setFilterBO('Warrior')">Warrior</button>
+      <button class="fbtn"        id="bo-f-Hunter"   onclick="setFilterBO('Hunter')">Hunter</button>
+      <button class="fbtn"        id="bo-f-Mage"     onclick="setFilterBO('Mage')">Mage</button>
+    </div>
     <div class="buy-cols" id="buyOrders"></div>
   </div>
 
   <div class="tab-content" id="tab-ordersheet">
+    <div class="filter-bar" id="os-filter-bar">
+      <button class="fbtn active" id="os-f-all"      onclick="setFilterOS('all')">All</button>
+      <button class="fbtn"        id="os-f-Helmet"   onclick="setFilterOS('Helmet')">Helmet</button>
+      <button class="fbtn"        id="os-f-Jacket"   onclick="setFilterOS('Jacket')">Jacket</button>
+      <button class="fbtn"        id="os-f-Shoes"    onclick="setFilterOS('Shoes')">Shoes</button>
+      <button class="fbtn"        id="os-f-Offhands" onclick="setFilterOS('Offhands')">Offhands</button>
+      <button class="fbtn"        id="os-f-Warrior"  onclick="setFilterOS('Warrior')">Warrior</button>
+      <button class="fbtn"        id="os-f-Hunter"   onclick="setFilterOS('Hunter')">Hunter</button>
+      <button class="fbtn"        id="os-f-Mage"     onclick="setFilterOS('Mage')">Mage</button>
+    </div>
     <div class="content-pad">
       <div class="order-sheet" id="orderSheetBody"></div>
     </div>
@@ -1945,6 +1998,10 @@ const INIT = {
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data     = JSON.parse(JSON.stringify(INIT));
 let filters  = { T7:'all', T8:'all', T9:'all' };
+let filterBO = 'all';
+let filterOS = 'all';
+let myRole   = localStorage.getItem('regear-role') || 'officer';
+let crafterPasswordHash = null; // loaded from payload
 let sorts    = { T7: { field: null, dir: 1 }, T8: { field: null, dir: 1 }, T9: { field: null, dir: 1 } };
 let editMode = false;
 const TIERS  = ['T7','T8','T9'];
@@ -2035,6 +2092,22 @@ function setFilter(tier, f) {
   renderTier(tier);
 }
 
+
+function setFilterBO(f) {
+  filterBO = f;
+  ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
+    document.getElementById(`bo-f-${x}`)?.classList.toggle('active', x === f);
+  });
+  renderBuyOrders();
+}
+
+function setFilterOS(f) {
+  filterOS = f;
+  ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
+    document.getElementById(`os-f-${x}`)?.classList.toggle('active', x === f);
+  });
+  renderOrderSheet();
+}
 function setSort(tier, field) {
   const s = sorts[tier];
   if (s.field === field) s.dir *= -1;
@@ -2185,7 +2258,7 @@ function renderBuyOrders() {
   for (const tier of TIERS) {
     for (const [cat, items] of Object.entries(data[tier])) {
       for (const i of items) {
-        if (!i.hidden && !i.ignore && need(i) > 0)
+        if (!i.hidden && !i.ignore && need(i) > 0 && (filterBO === 'all' || cat === filterBO))
           cols[tier].push({ ...i, cat, tier, n: need(i) });
       }
     }
@@ -2201,7 +2274,7 @@ function renderBuyOrders() {
       div.innerHTML += `<div class="buy-empty">✓ All stocked</div>`;
     } else {
       for (const i of cols[key]) {
-        const crafterList = getCraftersForItem(i.cat);
+        const crafterList = getCraftersForItem(i.name);
         const assignKey   = `${i.tier}-${i.cat}-${i.name}`;
         const assigned    = crafterAssignments[assignKey];
 
@@ -2234,6 +2307,244 @@ function renderBuyOrders() {
 }
 
 // ── CRAFTERS ──────────────────────────────────────────────────────────────
+const NAME_TO_CRAFTER_CAT = {
+  "Arcane Staff": "arcane-staffs",
+  "Arclight Blasters": "crossbows",
+  "Arctic Staff": "frost-staffs",
+  "Armor of Valor": "plate-armor",
+  "Assassin Hood": "leather-hoods",
+  "Assassin Jacket": "leather-jackets",
+  "Assassin Shoes": "leather-shoes",
+  "Astral Aegis": "shields",
+  "Astral Staff": "arcane-staffs",
+  "Battle Bracers": "war-gloves",
+  "Battleaxe": "axes",
+  "Bear Paws": "axes",
+  "Bedrock Mace": "maces",
+  "Black Monk Stave": "quarterstaffs",
+  "Blazing Staff": "fire-staffs",
+  "Blight Staff": "nature-staffs",
+  "Bloodletter": "daggers",
+  "Bloodmoon Staff": "shapeshifter",
+  "Blueflame Torch": "torches",
+  "Boltcasters": "crossbows",
+  "Boots of Valor": "plate-boots",
+  "Bow": "bows",
+  "Bow of Badon": "bows",
+  "Brawler Gloves": "war-gloves",
+  "Bridled Fury": "daggers",
+  "Brimstone Staff": "fire-staffs",
+  "Broadsword": "swords",
+  "Caitiff Shield": "shields",
+  "Camlann Mace": "maces",
+  "Carrioncaller": "axes",
+  "Carving Sword": "swords",
+  "Celestial Censer": "books",
+  "Chillhowl": "frost-staffs",
+  "Clarent Blade": "swords",
+  "Claws": "daggers",
+  "Claymore": "swords",
+  "Cleric Cowl": "mage-cowls",
+  "Cleric Robe": "mage-robes",
+  "Cleric Sandals": "mage-sandals",
+  "Cowl of Purity": "mage-cowls",
+  "Crossbow": "crossbows",
+  "Cryptcandle": "torches",
+  "Crystal Reaper": "axes",
+  "Cultist Cowl": "mage-cowls",
+  "Cultist Robe": "mage-robes",
+  "Cultist Sandals": "mage-sandals",
+  "Cursed Skull": "cursed-staffs",
+  "Cursed Staff": "cursed-staffs",
+  "Dagger": "daggers",
+  "Dagger Pair": "daggers",
+  "Damnation Staff": "cursed-staffs",
+  "Dawnsong": "fire-staffs",
+  "Daybreaker": "spears",
+  "Deathgivers": "daggers",
+  "Demon Armor": "plate-armor",
+  "Demon Boots": "plate-boots",
+  "Demon Helmet": "plate-helmets",
+  "Demonfang": "daggers",
+  "Demonic Staff": "cursed-staffs",
+  "Divine Staff": "holy-staffs",
+  "Double Bladed Staff": "quarterstaffs",
+  "Dreadstorm Monarch": "maces",
+  "Druid Cowl": "mage-cowls",
+  "Druid Robe": "mage-robes",
+  "Druid Sandals": "mage-sandals",
+  "Druidic Staff": "nature-staffs",
+  "Dual Swords": "swords",
+  "Duskweaver Armor": "plate-armor",
+  "Duskweaver Boots": "plate-boots",
+  "Duskweaver Helmet": "plate-helmets",
+  "Earthrune Staff": "shapeshifter",
+  "Energy Shaper": "crossbows",
+  "Enigmatic Staff": "arcane-staffs",
+  "Evensong": "arcane-staffs",
+  "Exalted Staff": "holy-staffs",
+  "Eye of Secrets": "books",
+  "Facebreaker": "shields",
+  "Fallen Staff": "holy-staffs",
+  "Feyscale Hat": "mage-cowls",
+  "Feyscale Robe": "mage-robes",
+  "Feyscale Sandals": "mage-sandals",
+  "Fiend Cowl": "mage-cowls",
+  "Fiend Robe": "mage-robes",
+  "Fiend Sandals": "mage-sandals",
+  "Fire Staff": "fire-staffs",
+  "Fists of Avalon": "war-gloves",
+  "Flamewalker Staff": "fire-staffs",
+  "Forcepulse Bracers": "war-gloves",
+  "Forge Hammers": "hammers",
+  "Forgebark Staff": "nature-staffs",
+  "Frost Staff": "frost-staffs",
+  "Galatine Pair": "swords",
+  "Glacial Staff": "frost-staffs",
+  "Glaive": "spears",
+  "Grailseeker": "quarterstaffs",
+  "Graveguard Armor": "plate-armor",
+  "Graveguard Boots": "plate-boots",
+  "Graveguard Helmet": "plate-helmets",
+  "Great Arcane Staff": "arcane-staffs",
+  "Great Cursed Staff": "cursed-staffs",
+  "Great Fire Staff": "fire-staffs",
+  "Great Frost Staff": "frost-staffs",
+  "Great Hammer": "hammers",
+  "Great Holy Staff": "holy-staffs",
+  "Great Nature Staff": "nature-staffs",
+  "Greataxe": "axes",
+  "Grovekeeper": "hammers",
+  "Guardian Armor": "plate-armor",
+  "Guardian Boots": "plate-boots",
+  "Guardian Helmet": "plate-helmets",
+  "Halberd": "axes",
+  "Hallowfall": "holy-staffs",
+  "Hammer": "hammers",
+  "Hand of Justice": "hammers",
+  "Heavy Crossbow": "crossbows",
+  "Heavy Mace": "maces",
+  "Hellfire Hands": "war-gloves",
+  "Hellion Hood": "leather-hoods",
+  "Hellion Jacket": "leather-jackets",
+  "Hellion Shoes": "leather-shoes",
+  "Hellspawn Staff": "shapeshifter",
+  "Helmet of Valor": "plate-helmets",
+  "Heron Spear": "spears",
+  "Hoarfrost Staff": "frost-staffs",
+  "Holy Staff": "holy-staffs",
+  "Hood of Tenacity": "leather-hoods",
+  "Hunter Hood": "leather-hoods",
+  "Hunter Jacket": "leather-jackets",
+  "Hunter Shoes": "leather-shoes",
+  "Icicle Staff": "frost-staffs",
+  "Incubus Mace": "maces",
+  "Infernal Scythe": "axes",
+  "Infernal Staff": "fire-staffs",
+  "Infinity Blade": "swords",
+  "Iron-clad Staff": "quarterstaffs",
+  "Ironroot Staff": "nature-staffs",
+  "Jacket of Tenacity": "leather-jackets",
+  "Judicator Armor": "plate-armor",
+  "Judicator Boots": "plate-boots",
+  "Judicator Helmet": "plate-helmets",
+  "Kingmaker": "swords",
+  "Knight Armor": "plate-armor",
+  "Knight Boots": "plate-boots",
+  "Knight Helmet": "plate-helmets",
+  "Leering Cane": "torches",
+  "Lifecurse Staff": "cursed-staffs",
+  "Lifetouch Staff": "holy-staffs",
+  "Light Crossbow": "crossbows",
+  "Lightcaller": "shapeshifter",
+  "Longbow": "bows",
+  "Mace": "maces",
+  "Mage Cowl": "mage-cowls",
+  "Mage Robe": "mage-robes",
+  "Mage Sandals": "mage-sandals",
+  "Malevolent Locus": "arcane-staffs",
+  "Mercenary Hood": "leather-hoods",
+  "Mercenary Jacket": "leather-jackets",
+  "Mercenary Shoes": "leather-shoes",
+  "Mistcaller": "torches",
+  "Mistpiercer": "bows",
+  "Mistwalker Hood": "leather-hoods",
+  "Mistwalker Jacket": "leather-jackets",
+  "Mistwalker Shoes": "leather-shoes",
+  "Morning Star": "maces",
+  "Muisak": "books",
+  "Nature Staff": "nature-staffs",
+  "Oathkeepers": "maces",
+  "Occult Staff": "arcane-staffs",
+  "Permafrost Prism": "frost-staffs",
+  "Phantom Twinblade": "quarterstaffs",
+  "Pike": "spears",
+  "Polehammer": "hammers",
+  "Primal Staff": "shapeshifter",
+  "Prowling Staff": "shapeshifter",
+  "Quarterstaff": "quarterstaffs",
+  "Rampant Staff": "nature-staffs",
+  "Ravenstrike Cestus": "war-gloves",
+  "Realmbreaker": "axes",
+  "Redemption Staff": "holy-staffs",
+  "Rift Glaive": "spears",
+  "Robe of Purity": "mage-robes",
+  "Rootbound Staff": "shapeshifter",
+  "Rotcaller Staff": "cursed-staffs",
+  "Royal Armor": "plate-armor",
+  "Royal Boots": "plate-boots",
+  "Royal Cowl": "mage-cowls",
+  "Royal Helmet": "plate-helmets",
+  "Royal Hood": "leather-hoods",
+  "Royal Jacket": "leather-jackets",
+  "Royal Robe": "mage-robes",
+  "Royal Sandals": "mage-sandals",
+  "Royal Shoes": "leather-shoes",
+  "Sacred Scepter": "torches",
+  "Sandals of Purity": "mage-sandals",
+  "Sarcophagus": "shields",
+  "Scholar Cowl": "mage-cowls",
+  "Scholar Robe": "mage-robes",
+  "Scholar Sandals": "mage-sandals",
+  "Shadowcaller": "cursed-staffs",
+  "Shield": "shields",
+  "Shoes of Tenacity": "leather-shoes",
+  "Siegebow": "crossbows",
+  "Skystrider Bow": "bows",
+  "Soldier Armor": "plate-armor",
+  "Soldier Boots": "plate-boots",
+  "Soldier Helmet": "plate-helmets",
+  "Soulscythe": "quarterstaffs",
+  "Spear": "spears",
+  "Specter Hood": "leather-hoods",
+  "Specter Jacket": "leather-jackets",
+  "Specter Shoes": "leather-shoes",
+  "Spiked Gauntlets": "war-gloves",
+  "Spirithunter": "spears",
+  "Staff of Balance": "quarterstaffs",
+  "Stalker Hood": "leather-hoods",
+  "Stalker Jacket": "leather-jackets",
+  "Stalker Shoes": "leather-shoes",
+  "Stillgaze Staff": "shapeshifter",
+  "Taproot": "books",
+  "Timelocked Grimoire": "books",
+  "Tombhammer": "hammers",
+  "Tome of Spells": "books",
+  "Torch": "torches",
+  "Trinity Spear": "spears",
+  "Truebolt Hammer": "hammers",
+  "Twin Slayers": "daggers",
+  "Unbreakable Ward": "shields",
+  "Ursine Maulers": "war-gloves",
+  "Wailing Bow": "bows",
+  "Warbow": "bows",
+  "Weeping Repeater": "crossbows",
+  "Whispering Bow": "bows",
+  "Wild Staff": "nature-staffs",
+  "Wildfire Staff": "fire-staffs",
+  "Witchwork Staff": "arcane-staffs",
+};
+
 const CRAFTER_CATS = [
   { group:'Plate Armor',    id:'plate-helmets',  label:'Plate Helmets' },
   { group:'Plate Armor',    id:'plate-armor',    label:'Plate Armor' },
@@ -2269,15 +2580,7 @@ const CRAFTER_CATS = [
 let crafters = {};
 CRAFTER_CATS.forEach(c => { crafters[c.id] = []; });
 
-const CAT_TO_CRAFTERS = {
-  'Helmet':   ['plate-helmets','leather-hoods','mage-cowls'],
-  'Jacket':   ['plate-armor','leather-jackets','mage-robes'],
-  'Shoes':    ['plate-boots','leather-shoes','mage-sandals'],
-  'Offhands': ['shields','torches','books'],
-  'Warrior':  ['swords','axes','maces','hammers','war-gloves','crossbows'],
-  'Hunter':   ['bows','spears','nature-staffs','daggers','quarterstaffs','shapeshifter'],
-  'Mage':     ['fire-staffs','holy-staffs','arcane-staffs','frost-staffs','cursed-staffs'],
-};
+// CAT_TO_CRAFTERS removed — using NAME_TO_CRAFTER_CAT per-item lookup
 
 // Pre-group crafter categories to avoid repeated .filter() calls in renderCrafters
 const CRAFTER_GROUPS = CRAFTER_CATS.reduce((acc, cat) => {
@@ -2285,9 +2588,9 @@ const CRAFTER_GROUPS = CRAFTER_CATS.reduce((acc, cat) => {
   return acc;
 }, {});
 
-function getCraftersForItem(cat) {
-  const ids = CAT_TO_CRAFTERS[cat] || [];
-  return [...new Set(ids.flatMap(id => crafters[id] || []))];
+function getCraftersForItem(name) {
+  const catId = NAME_TO_CRAFTER_CAT[name];
+  return catId ? [...(crafters[catId] || [])] : [];
 }
 
 function renderCrafters() {
@@ -2527,11 +2830,20 @@ function renderSummary() {
         </div>
       </div>
       <div class="guide-section">
+        <div class="guide-section-title">Crafter Access</div>
+        <div class="guide-rows">
+          <div class="guide-row">Officers can set a separate <strong>Crafter Password</strong> in ⚙ Settings. Share the room code and crafter password with your crafters — they'll join the same room but with a restricted view.</div>
+          <div class="guide-row">Crafters can see the <strong>Summary</strong>, <strong>Assignment</strong>, and <strong>Order Sheet</strong> tabs. They can hit <strong>Fulfill Order</strong> to mark items as done, which syncs to the whole room instantly.</div>
+          <div class="guide-row">Crafters cannot edit Have/Par values, toggle flags, manage the crafters list, access Settings, or change assignments. A <span class="guide-badge gb-amber">Crafter View</span> badge appears in their nav so the mode is clear.</div>
+        </div>
+      </div>
+      <div class="guide-section">
         <div class="guide-section-title">Saving & Sharing</div>
         <div class="guide-rows">
-          <div class="guide-row">All changes are <strong>automatically synced</strong> to your guild's room in real time — every officer sees updates the moment they happen.</div>
-          <div class="guide-row">Click the <strong>room badge</strong> in the top bar to copy your room code. Share the code and password with your officers so they can join.</div>
-          <div class="guide-row">Use <strong>⚙ Settings</strong> to rename your room, change the password, or reset all inventory to zero.</div>
+          <div class="guide-row">All changes are <strong>automatically synced</strong> to your guild's room in real time — every member sees updates the moment they happen.</div>
+          <div class="guide-row">Click the <strong>room badge</strong> in the top bar to copy your room code. Share the code and officer password with your officers, or the crafter password with your crafters.</div>
+          <div class="guide-row">Use <strong>⚙ Settings</strong> to rename your room, change either password, reset all inventory to zero, or restore a backup.</div>
+          <div class="guide-row"><strong>Backups</strong> are automatically saved each time you load the room — the last 3 snapshots are kept. You can restore any of them from Settings, which overwrites current data and syncs to everyone.</div>
           <div class="guide-row">Click the <strong>who's online</strong> pill to see who's currently in the room and update your own display name.</div>
           <div class="guide-row">If a room hasn't been updated in over <strong>30 days</strong>, a warning banner appears on rejoin as a reminder to verify the data before a raid.</div>
         </div>
@@ -2808,7 +3120,7 @@ function renderOrderSheet() {
   for (const tier of TIERS) {
     for (const [cat, catItems] of Object.entries(data[tier])) {
       for (const i of catItems) {
-        if (!i.hidden && !i.ignore && need(i) > 0) {
+        if (!i.hidden && !i.ignore && need(i) > 0 && (filterOS === 'all' || cat === filterOS)) {
           const assignKey = `${tier}-${cat}-${i.name}`;
           allOrderItems.push({ ...i, tier, cat, n: need(i), assigned: crafterAssignments[assignKey] || null });
         }
@@ -2818,7 +3130,7 @@ function renderOrderSheet() {
   allOrderItems.sort((a, b) => (b.priority - a.priority) || (b.n - a.n));
 
   if (!allOrderItems.length) {
-    body.innerHTML = `<div class="os-empty">No active buy orders — any item below par will appear automatically and they'll appear here when below par.</div>`;
+    body.innerHTML = `<div class="os-empty">${filterOS !== 'all' ? 'No ' + filterOS + ' items below par.' : 'All stocked — no active orders.'}</div>`;
     return;
   }
 
@@ -3085,9 +3397,11 @@ async function createRoom() {
     const payload = buildPayload();
     const { error } = await sb.from('rooms').insert({ code, name, payload, password_hash });
     if (!error) {
+      myRole = 'officer';
       localStorage.setItem('regear-room', code);
       localStorage.setItem('regear-pass', password_hash);
       localStorage.setItem('regear-name', name);
+      localStorage.setItem('regear-role', 'officer');
       enterRoom(code, name);
       return;
     }
@@ -3118,7 +3432,13 @@ async function joinRoom() {
   }
 
   const password_hash = await hashPassword(password);
-  if (password_hash !== data.password_hash) {
+  // Check officer password first, then crafter password
+  const savedCrafterHash = data.payload?.crafterPasswordHash || null;
+  if (password_hash === data.password_hash) {
+    myRole = 'officer';
+  } else if (savedCrafterHash && password_hash === savedCrafterHash) {
+    myRole = 'crafter';
+  } else {
     setRoomError('Incorrect password.');
     document.getElementById('joinCodeInput').disabled    = false;
     document.getElementById('joinPasswordInput').disabled = false;
@@ -3128,8 +3448,30 @@ async function joinRoom() {
   localStorage.setItem('regear-room', code);
   localStorage.setItem('regear-pass', password_hash);
   localStorage.setItem('regear-name', data.name || code);
+  localStorage.setItem('regear-role', myRole);
   mergeData(data.payload);
   enterRoom(code, data.name || code);
+}
+
+
+function applyRole() {
+  document.body.dataset.role = myRole;
+  // Show/hide crafter badge in nav
+  const existing = document.getElementById('roleBadge');
+  if (myRole === 'crafter') {
+    if (!existing) {
+      const badge = document.createElement('span');
+      badge.id = 'roleBadge';
+      badge.className = 'role-badge';
+      badge.textContent = 'Crafter View';
+      document.querySelector('.nav-right').prepend(badge);
+    }
+    // Auto-switch to Order Sheet tab
+    const osTab = document.querySelector('[onclick="switchTab(\'ordersheet\',this)"]');
+    if (osTab) switchTab('ordersheet', osTab);
+  } else {
+    if (existing) existing.remove();
+  }
 }
 
 function enterRoom(code, name) {
@@ -3140,6 +3482,8 @@ function enterRoom(code, name) {
   document.getElementById('roomCodeLabel').textContent = name ? code : '';
   setSyncState('ok');
   subscribeToRoom(code);
+  saveBackupSnapshot();
+  applyRole();
   renderAll();
   updateTimestamp(new Date());
 }
@@ -3159,6 +3503,10 @@ function leaveRoom() {
   localStorage.removeItem('regear-room');
   localStorage.removeItem('regear-pass');
   localStorage.removeItem('regear-name');
+  localStorage.removeItem('regear-role');
+  myRole = 'officer';
+  document.body.dataset.role = 'officer';
+  document.getElementById('roleBadge')?.remove();
   document.getElementById('roomNameLabel').textContent = '—';
   document.getElementById('roomCodeLabel').textContent = '';
   document.getElementById('staleBanner').classList.remove('visible');
@@ -3289,6 +3637,24 @@ function openSettings() {
   document.getElementById('settingsNameInput').value    = localStorage.getItem('regear-name') || '';
   document.getElementById('settingsPasswordInput').value = '';
   document.getElementById('settingsError').textContent  = '';
+
+  // Populate backup list
+  const listEl  = document.getElementById('backupList');
+  const backups = loadBackups();
+  if (!backups.length) {
+    listEl.innerHTML = '<div style="font-size:0.8rem;color:var(--ink4);font-style:italic">No backups yet — one is saved each time you open the room.</div>';
+  } else {
+    const pad = n => String(n).padStart(2, '0');
+    listEl.innerHTML = backups.map((bk, i) => {
+      const d = new Date(bk.savedAt);
+      const label = `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      return `<div class="settings-backup-row">
+        <span>${i === 0 ? '🕐 ' : ''}${label}</span>
+        <button class="settings-btn settings-btn-warn" onclick="restoreBackup(${i})">Restore</button>
+      </div>`;
+    }).join('');
+  }
+
   document.getElementById('settingsOverlay').classList.remove('hidden');
 }
 
@@ -3297,15 +3663,19 @@ function closeSettings() {
 }
 
 async function saveSettings() {
-  const newName     = document.getElementById('settingsNameInput').value.trim();
-  const newPassword = document.getElementById('settingsPasswordInput').value.trim();
+  const newName           = document.getElementById('settingsNameInput').value.trim();
+  const newPassword       = document.getElementById('settingsPasswordInput').value.trim();
+  const newCrafterPass    = document.getElementById('settingsCrafterPasswordInput').value.trim();
 
   if (!newName) { document.getElementById('settingsError').textContent = 'Guild name cannot be empty.'; return; }
   if (!currentRoom) return;
 
   const update = { name: newName };
   if (newPassword) update.password_hash = await hashPassword(newPassword);
+  if (newCrafterPass) crafterPasswordHash = await hashPassword(newCrafterPass);
 
+  // Always save payload so crafterPasswordHash persists
+  update.payload = buildPayload();
   const { error } = await sb.from('rooms').update(update).eq('code', currentRoom);
   if (error) { document.getElementById('settingsError').textContent = 'Failed to save. Try again.'; return; }
 
@@ -3337,11 +3707,41 @@ async function resetInventory() {
 }
 
 // ── PERSISTENCE ───────────────────────────────────────────────────────────
+const MAX_BACKUPS = 3;
+
+function loadBackups() {
+  try { return JSON.parse(localStorage.getItem('regear-backups') || '[]'); } catch { return []; }
+}
+
+function saveBackupSnapshot() {
+  if (!currentRoom) return;
+  const backups = loadBackups();
+  backups.unshift({ savedAt: new Date().toISOString(), payload: buildPayload() });
+  if (backups.length > MAX_BACKUPS) backups.length = MAX_BACKUPS;
+  localStorage.setItem('regear-backups', JSON.stringify(backups));
+}
+
+async function restoreBackup(index) {
+  const backups = loadBackups();
+  const bk = backups[index];
+  if (!bk) return;
+  const d = new Date(bk.savedAt);
+  const pad = n => String(n).padStart(2, '0');
+  const label = `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  if (!confirm(`Restore backup from ${label}? This will overwrite all current inventory, crafters, and assignments and sync to everyone in the room.`)) return;
+  mergeData(bk.payload);
+  await saveToStorage();
+  renderAll();
+  closeSettings();
+  showToast('Backup restored!');
+}
+
 function buildPayload() {
-  return { data, crafters, crafterAssignments };
+  return { data, crafters, crafterAssignments, crafterPasswordHash };
 }
 
 function mergeData(saved) {
+  if (saved.crafterPasswordHash !== undefined) crafterPasswordHash = saved.crafterPasswordHash;
   if (saved.data) {
     for (const tier of TIERS) {
       if (!saved.data[tier]) continue;
@@ -3389,6 +3789,7 @@ async function saveToStorage() {
     updateTimestamp(now);
     setSyncState('ok');
     showToast('Saved');
+
   } catch {
     setSyncState('error');
     showToast('Sync failed', true);
@@ -3410,12 +3811,26 @@ async function tryRejoinRoom() {
   if (!code || !password_hash) return false;
 
   const { data: row, error } = await sb.from('rooms').select('payload, password_hash, name, last_active').eq('code', code).single();
-  if (error || !row || row.password_hash !== password_hash) {
+  if (error || !row) {
     localStorage.removeItem('regear-room');
     localStorage.removeItem('regear-pass');
     localStorage.removeItem('regear-name');
+    localStorage.removeItem('regear-role');
     return false;
   }
+  // Validate against correct hash based on saved role
+  const savedRole        = localStorage.getItem('regear-role') || 'officer';
+  const savedCrafterHash = row.payload?.crafterPasswordHash || null;
+  const validOfficer  = password_hash === row.password_hash;
+  const validCrafter  = savedCrafterHash && password_hash === savedCrafterHash;
+  if (!validOfficer && !validCrafter) {
+    localStorage.removeItem('regear-room');
+    localStorage.removeItem('regear-pass');
+    localStorage.removeItem('regear-name');
+    localStorage.removeItem('regear-role');
+    return false;
+  }
+  myRole = validOfficer ? 'officer' : 'crafter';
 
   if (row.last_active) {
     const daysSince = (Date.now() - new Date(row.last_active).getTime()) / 86400000;
