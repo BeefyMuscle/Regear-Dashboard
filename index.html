@@ -2311,6 +2311,7 @@ let searches = { T7:'', T8:'', T9:'' };
 let filterBO = 'all';
 let filterOS = 'all';
 let myRole   = localStorage.getItem('regear-role') || 'officer';
+document.body.dataset.role = myRole; // apply immediately so CSS restrictions take effect before any render
 let changelog = [];
 const MAX_LOG = 100;
 let pendingFulfill = null; // { tier, cat, name, btnEl }
