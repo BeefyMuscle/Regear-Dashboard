@@ -483,6 +483,8 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
 .summary-critical-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  max-height: 280px;
+  overflow-y: auto;
 }
 .summary-crit-item {
   padding: 8px 16px;
@@ -1037,13 +1039,7 @@ body[data-role="crafter"] .crafter-tag { pointer-events: none; cursor: default; 
   padding: 5px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
 }
 .re-tier-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-.re-fs-search {
-  background: var(--bg2); border: 1px solid var(--border);
-  border-radius: 20px; padding: 5px 14px; font-size: 0.78rem;
-  color: var(--ink2); font-family: 'Source Sans 3', sans-serif;
-  outline: none; width: 160px; transition: all 0.2s;
-}
-.re-fs-search:focus { border-color: var(--accent); width: 200px; }
+
 .re-fs-progress {
   font-size: 0.75rem; color: var(--ink4); margin-left: auto; white-space: nowrap;
 }
@@ -1126,8 +1122,7 @@ body[data-role="crafter"] .crafter-tag { pointer-events: none; cursor: default; 
 .re-fs-actions { display: flex; align-items: center; gap: 10px; }
 .re-fs-changed { font-size: 0.78rem; color: var(--green); font-weight: 600; }
 
-body[data-role="crafter"] #rapidBtn,
-.re-fs body[data-role="crafter"] { display: none; }
+body[data-role="crafter"] #rapidBtn { display: none; }
 
 @media (max-width: 600px) { #rapidBtn { display: none; } }
 
@@ -1198,6 +1193,7 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
 
   /* Nav: tighten up, hide subtitle and timestamp */
   nav { padding: 0 14px; height: 50px; }
+  .tabs { top: 50px; }
   .nav-logo .sep,
   .nav-logo .sub,
   .save-timestamp { display: none; }
@@ -1268,6 +1264,14 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
   /* Room overlay: tighter on small screens */
   .room-modal,
   .username-modal { padding: 28px 20px 24px; width: calc(100vw - 28px); }
+
+
+
+  /* Hide how-to guide on mobile */
+  .guide-card { display: none; }
+
+  /* Stack tier breakdown cards vertically */
+  .summary-tiers { grid-template-columns: 1fr; gap: 12px; }
 
 }
 </style>
@@ -1399,9 +1403,7 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
       <button class="re-tier-btn"        id="re-btn-T8" onclick="setRETier('T8')">T8</button>
       <button class="re-tier-btn"        id="re-btn-T9" onclick="setRETier('T9')">T9</button>
     </div>
-    <input class="re-fs-search" id="reSearch" type="text" placeholder="Filter…"
-      oninput="reSetFilter(this.value)"
-      onkeydown="if(event.key==='Escape'){this.value='';reSetFilter('')}"/>
+
     <div class="re-fs-progress" id="reProgress"></div>
     <button class="re-fs-close" onclick="closeRapidEntry()" title="Close (Esc)">✕</button>
   </div>
@@ -1411,7 +1413,7 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
   </div>
 
   <div class="re-fs-footer">
-    <span class="re-fs-hint">↑ ↓ / W S navigate &nbsp;·&nbsp; type to set value &nbsp;·&nbsp; Esc close</span>
+    <span class="re-fs-hint">↑ ↓ / W S navigate &nbsp;·&nbsp; type to set value &nbsp;·&nbsp; R save &amp; close &nbsp;·&nbsp; Esc discard</span>
     <div class="re-fs-actions">
       <span class="re-fs-changed" id="reChangedCount"></span>
       <button class="room-btn room-btn-secondary" onclick="closeRapidEntry()" style="padding:8px 20px">Discard</button>
@@ -3202,7 +3204,7 @@ function renderSummary() {
           <div class="guide-row">Browse <strong>Tier 7, 8, or 9</strong> tabs to see all tracked gear and weapons. Use the <strong>category filter bar</strong> to jump to Helmets, Warrior weapons, Mage staves, etc. Use the <strong>search box</strong> on the right of the filter bar to find a specific item by name.</div>
           <div class="guide-row">Use the <strong>Have</strong> ticker to record how many of each item you have in stock. <strong>Shift+click</strong> any <span class="guide-badge gb-amber">+ / −</span> button to adjust by 10 at a time. Set a <strong>Par</strong> value for each item — your target quantity. <strong>Need</strong> calculates automatically.</div>
           <div class="guide-row">Click any column header (<strong>Have, Par, Need</strong>) to sort — click again to reverse. Sorting is per-tier and persists while you browse categories.</div>
-          <div class="guide-row"><strong>Keyboard shortcuts:</strong> <strong>1–8</strong> switch tabs · <strong>E</strong> toggle Edit Mode (on tier tabs) · <strong>D</strong> toggle dark mode · <strong>↑↓ / W S</strong> navigate the Rapid Entry wheel.</div>
+          <div class="guide-row"><strong>Keyboard shortcuts:</strong> <strong>1–8</strong> switch tabs · <strong>E</strong> toggle Edit Mode (on tier tabs) · <strong>R</strong> open Rapid Entry · <strong>D</strong> toggle dark mode · <strong>↑↓ / W S</strong> navigate the Rapid Entry wheel.</div>
         </div>
       </div>
       <div class="guide-section">
@@ -3219,7 +3221,7 @@ function renderSummary() {
         <div class="guide-rows">
           <div class="guide-row">Click <strong>Rapid Entry</strong> in the tab bar to open a fullscreen wheel for quickly entering chest counts. Pick a tier at the top, then scroll through items with <strong>↑↓ arrow keys</strong> or <strong>W / S</strong>.</div>
           <div class="guide-row">The active item sits large and centred. Type a number directly into the input — it turns green when the value differs from what's saved. Use <strong>W / S</strong> while the input is focused to commit the value and immediately move to the next item.</div>
-          <div class="guide-row">Use the <strong>filter box</strong> in the top bar to narrow the wheel to matching items. Hidden items are skipped. Nothing saves until you hit <strong>Save Changes</strong> — closing or hitting Esc discards all pending edits.</div>
+          <div class="guide-row">Hidden items are skipped. Press <strong>R</strong> to save and close, or <strong>Esc</strong> to discard all changes.</div>
         </div>
       </div>
       <div class="guide-section">
@@ -3995,21 +3997,26 @@ let reTier      = 'T7';
 let reItems     = [];   // flat filtered item list { name, cat, have, par, note }
 let reIndex     = 0;    // currently active item index
 let reChanges   = {};   // key: `${tier}-${cat}-${name}` → new have value
-let reFilterStr = '';
 
 function openRapidEntry() {
   reChanges   = {};
-  reFilterStr = '';
-  document.getElementById('reSearch').value = '';
   document.getElementById('reFull').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
-  setRETier(reTier);
+  // Default to whichever tier tab is currently active
+  const activeTier = ['T7','T8','T9'].find(t =>
+    document.getElementById('tab-' + t.toLowerCase())?.classList.contains('active')
+  );
+  setRETier(activeTier || reTier);
 }
 
 function closeRapidEntry() {
   document.getElementById('reFull').classList.add('hidden');
   document.body.style.overflow = '';
   reChanges = {};
+}
+
+function closeAndSaveRapidEntry() {
+  commitRapidEntry(); // commits and closes if there are changes, just closes if not
 }
 
 function setRETier(tier) {
@@ -4020,17 +4027,11 @@ function setRETier(tier) {
   reBuildList();
 }
 
-function reSetFilter(val) {
-  reFilterStr = val.toLowerCase().trim();
-  reBuildList();
-}
-
 function reBuildList() {
   reItems = [];
   for (const [cat, items] of Object.entries(data[reTier])) {
     for (const i of items) {
       if (i.hidden) continue;
-      if (reFilterStr && !i.name.toLowerCase().includes(reFilterStr)) continue;
       reItems.push({ ...i, cat });
     }
   }
@@ -4126,17 +4127,19 @@ function reMove(dir) {
 // Global keydown handler for rapid entry
 document.addEventListener('keydown', function(e) {
   if (document.getElementById('reFull').classList.contains('hidden')) return;
-  if (e.target === document.getElementById('reSearch')) return;
   if (e.target?.classList.contains('re-item-input')) {
     // W/S from number input — commit value then move
     if (e.key === 's' || e.key === 'S') { e.preventDefault(); reSetVal(e.target, e.target.dataset.key); reMove(1); }
     else if (e.key === 'w' || e.key === 'W') { e.preventDefault(); reSetVal(e.target, e.target.dataset.key); reMove(-1); }
+    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); closeAndSaveRapidEntry(); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeRapidEntry(); }
     return;
   }
 
   if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); reMove(1); }
   else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { e.preventDefault(); reMove(-1); }
   else if (e.key === 'Escape') { closeRapidEntry(); }
+  else if (e.key === 'r' || e.key === 'R') { closeAndSaveRapidEntry(); }
 });
 
 function commitRapidEntry() {
@@ -4499,6 +4502,7 @@ if (localStorage.getItem('regear-theme') === 'dark') {
 document.addEventListener('keydown', e => {
   if (window.innerWidth <= 600) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!document.getElementById('reFull').classList.contains('hidden')) return;
 
   // ── Tab shortcuts + E/D (skip when typing) ──
   const tag = document.activeElement?.tagName;
@@ -4511,6 +4515,8 @@ document.addEventListener('keydown', e => {
   } else if (e.key === 'e' || e.key === 'E') {
     const active = document.querySelector('.tab-content.active');
     if (active && ['tab-t7','tab-t8','tab-t9'].includes(active.id)) toggleEditMode();
+  } else if (e.key === 'r' || e.key === 'R') {
+    if (myRole !== 'crafter') openRapidEntry();
   } else if (e.key === 'd' || e.key === 'D') {
     toggleTheme();
   }
