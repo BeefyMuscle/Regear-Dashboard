@@ -3537,8 +3537,7 @@ const ROYAL_ITEMS = new Set([
   'Royal Cowl','Royal Robe','Royal Sandals',
 ]);
 
-function fulfillItem(tier, cat, itemName, btnEl) {
-  // Two-tap confirmation
+function fulfillItem(tier, cat, itemName) {
   if (pendingFulfill && pendingFulfill.name === itemName && pendingFulfill.tier === tier) {
     // Second tap — execute
     const item = data[tier][cat]?.find(i => i.name === itemName);
@@ -3551,21 +3550,14 @@ function fulfillItem(tier, cat, itemName, btnEl) {
     scheduleSave();
     showToast(`✓ ${itemName} fulfilled`);
   } else {
-    // First tap — arm confirmation
-    if (pendingFulfill?.btnEl) {
-      pendingFulfill.btnEl.textContent = 'Fulfill Order';
-      pendingFulfill.btnEl.classList.remove('os-fulfill-confirm');
-    }
-    pendingFulfill = { tier, cat, name: itemName, btnEl };
-    if (btnEl) {
-      btnEl.textContent = 'Confirm?';
-      btnEl.classList.add('os-fulfill-confirm');
-    }
+    // First tap — arm, re-render sheet so button shows Confirm?
+    pendingFulfill = { tier, cat, name: itemName };
+    renderOrderSheet();
     // Auto-cancel after 3s
     setTimeout(() => {
       if (pendingFulfill?.name === itemName && pendingFulfill?.tier === tier) {
-        if (btnEl) { btnEl.textContent = 'Fulfill Order'; btnEl.classList.remove('os-fulfill-confirm'); }
         pendingFulfill = null;
+        renderOrderSheet();
       }
     }, 3000);
   }
