@@ -811,10 +811,10 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
 }
 .room-modal-title {
   font-family: 'Lora', serif; font-size: 1.3rem; font-weight: 700;
-  color: var(--accent); margin-bottom: 6px;
+  color: var(--accent); margin-bottom: 6px; text-align: center;
 }
 .room-modal-sub {
-  font-size: 0.82rem; color: var(--ink3); margin-bottom: 28px; line-height: 1.5;
+  font-size: 0.82rem; color: var(--ink3); margin-bottom: 28px; line-height: 1.5; text-align: center;
 }
 .room-divider {
   display: flex; align-items: center; gap: 12px;
@@ -845,8 +845,9 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
 .room-error { font-size: 0.78rem; color: var(--red); margin-top: 8px; min-height: 18px; }
 .room-section-label {
   font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.12em; color: var(--ink4); margin-bottom: 8px;
+  letter-spacing: 0.12em; color: var(--ink4); margin-bottom: 8px; margin-top: 16px;
 }
+.room-section-label:first-child { margin-top: 0; }
 .room-input-password { letter-spacing: 0.08em; text-transform: none; font-weight: 400; }
 
 /* SYNC STATUS IN NAV */
@@ -992,11 +993,9 @@ tr.row-hidden td:first-child { box-shadow: inset 4px 0 0 var(--border2); }
 
 /* ── CRAFTER ROLE ─────────────────────────────────────── */
 /* Hide tabs crafters can't see */
-body[data-role="crafter"] .tab:nth-child(2),
-body[data-role="crafter"] .tab:nth-child(3),
-body[data-role="crafter"] .tab:nth-child(4),
-body[data-role="crafter"] .tab:nth-child(7),
-body[data-role="crafter"] .tab:nth-child(8) { display: none; }
+body[data-role="crafter"] .tab[data-tier],
+body[data-role="crafter"] .tab[data-page="crafters"],
+body[data-role="crafter"] .tab[data-page="log"] { display: none; }
 /* Hide officer-only nav buttons */
 body[data-role="crafter"] #settingsBtn,
 body[data-role="crafter"] #editModeBtn { display: none; }
@@ -1126,6 +1125,53 @@ body[data-role="crafter"] #rapidBtn { display: none; }
 
 @media (max-width: 600px) { #rapidBtn { display: none; } }
 
+
+/* ── TIER PICKER ─────────────────────────────────────── */
+.tier-picker { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+.tier-pick-btn {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--ink3); font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em;
+  padding: 6px 18px; border-radius: 6px; cursor: pointer; transition: all 0.15s;
+}
+.tier-pick-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.tier-pick-btn:hover:not(.active) { border-color: var(--border2); color: var(--ink2); }
+
+
+/* ── ROOM CHOICE SCREEN ─────────────────────────────── */
+.room-choice-btns {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  margin-top: 8px;
+}
+.room-choice-btn {
+  background: var(--bg); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 20px 16px; text-align: center;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+.room-choice-btn:hover {
+  border-color: var(--accent); background: var(--bg2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.room-choice-icon {
+  font-size: 1.8rem; font-weight: 300; color: var(--accent);
+  line-height: 1;
+}
+.room-choice-label {
+  font-family: 'Lora', serif; font-weight: 700; font-size: 0.95rem;
+  color: var(--ink);
+}
+.room-choice-hint {
+  font-size: 0.75rem; color: var(--ink4); line-height: 1.3;
+}
+.room-modal-back {
+  font-size: 0.78rem; color: var(--ink3); cursor: pointer;
+  margin-bottom: 20px; display: inline-block;
+  transition: color 0.15s;
+}
+.room-modal-back:hover { color: var(--accent); }
+
 /* ── NOTES ─────────────────────────────────────────── */
 .note-th { font-size: 0.68rem; color: var(--ink4); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 8px; min-width: 120px; }
 .note-cell { padding: 4px 8px; }
@@ -1205,13 +1251,11 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
   .theme-btn { padding: 4px 10px; font-size: 0.75rem; }
   .online-pill { font-size: 0.72rem; padding: 3px 8px; }
 
-  /* Tabs: show only Summary (1) and Order Sheet (6) */
-  .tab:nth-child(2),
-  .tab:nth-child(3),
-  .tab:nth-child(4),
-  .tab:nth-child(5),
-  .tab:nth-child(7),
-  .tab:nth-child(8) { display: none; }
+  /* Tabs: show only Summary and Order Sheet on mobile */
+  .tab[data-tier],
+  .tab[data-page="buyorders"],
+  .tab[data-page="crafters"],
+  .tab[data-page="log"] { display: none; }
   .tabs { padding: 0 14px; }
   .tab { padding: 10px 16px; font-size: 0.78rem; }
   .tab-room-status { gap: 8px; }
@@ -1291,22 +1335,55 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
 </div>
 <div class="room-overlay" id="roomOverlay">
   <div class="room-modal">
-    <div class="room-modal-title">⚔ Regear Dashboard</div>
-    <div class="room-modal-sub">Rooms let your whole guild share one live inventory. Create a new room or join your guild's existing one using their code and password.</div>
 
-    <div class="room-section-label">Create a new room</div>
-    <input class="room-input" id="createNameInput" placeholder="Guild name (e.g. Wolfsblood)" maxlength="32" onkeydown="if(event.key==='Enter')createRoom()"/>
-    <input class="room-input room-input-password" id="createPasswordInput" type="password" placeholder="Set a room password" onkeydown="if(event.key==='Enter')createRoom()"/>
-    <button class="room-btn room-btn-primary" onclick="createRoom()" id="createRoomBtn">Create Room</button>
+    <!-- SCREEN 1: Choice -->
+    <div id="roomScreenChoice">
+      <div class="room-modal-title">⚔ Regear Dashboard</div>
+      <div class="room-modal-sub">Real-time guild inventory tracking for Albion Online.</div>
+      <div class="room-choice-btns">
+        <button class="room-choice-btn" onclick="showRoomScreen('create')">
+          <div class="room-choice-icon">+</div>
+          <div class="room-choice-label">Create Room</div>
+          <div class="room-choice-hint">Start a new room for your guild</div>
+        </button>
+        <button class="room-choice-btn" onclick="showRoomScreen('join')">
+          <div class="room-choice-icon">→</div>
+          <div class="room-choice-label">Join Room</div>
+          <div class="room-choice-hint">Join with a code and password</div>
+        </button>
+      </div>
+    </div>
 
-    <div class="room-divider">OR</div>
+    <!-- SCREEN 2: Create -->
+    <div id="roomScreenCreate" style="display:none">
+      <div class="room-modal-back" onclick="showRoomScreen('choice')">← Back</div>
+      <div class="room-modal-title">Create a Room</div>
+      <div class="room-modal-sub">Set up your guild's inventory room.</div>
+      <input class="room-input" id="createNameInput" placeholder="Guild name (e.g. Wolfsblood)" maxlength="32" onkeydown="if(event.key==='Enter')createRoom()"/>
+      <input class="room-input room-input-password" id="createPasswordInput" type="password" placeholder="Set a room password" onkeydown="if(event.key==='Enter')createRoom()"/>
+      <div class="room-section-label">Tiers to track</div>
+      <div class="tier-picker" id="createTierPicker">
+        <button class="tier-pick-btn" data-tier="T6" onclick="toggleTierPick(this)">T6</button>
+        <button class="tier-pick-btn active" data-tier="T7" onclick="toggleTierPick(this)">T7</button>
+        <button class="tier-pick-btn active" data-tier="T8" onclick="toggleTierPick(this)">T8</button>
+        <button class="tier-pick-btn active" data-tier="T9" onclick="toggleTierPick(this)">T9</button>
+        <button class="tier-pick-btn" data-tier="T10" onclick="toggleTierPick(this)">T10</button>
+      </div>
+      <button class="room-btn room-btn-primary" onclick="createRoom()" id="createRoomBtn" style="margin-top:18px">Create Room</button>
+      <div class="room-error" id="roomError"></div>
+    </div>
 
-    <div class="room-section-label">Join an existing room</div>
-    <input class="room-input" id="joinCodeInput" placeholder="Room code (e.g. AB3X9K4M)" maxlength="8" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()"/>
-    <input class="room-input room-input-password" id="joinPasswordInput" type="password" placeholder="Room password" onkeydown="if(event.key==='Enter')joinRoom()"/>
-    <button class="room-btn room-btn-secondary" onclick="joinRoom()">Join Room</button>
+    <!-- SCREEN 3: Join -->
+    <div id="roomScreenJoin" style="display:none">
+      <div class="room-modal-back" onclick="showRoomScreen('choice')">← Back</div>
+      <div class="room-modal-title">Join a Room</div>
+      <div class="room-modal-sub">Enter the code and password from your guild leader.</div>
+      <input class="room-input" id="joinCodeInput" placeholder="Room code (e.g. AB3X9K4M)" maxlength="8" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')joinRoom()"/>
+      <input class="room-input room-input-password" id="joinPasswordInput" type="password" placeholder="Room password" onkeydown="if(event.key==='Enter')joinRoom()"/>
+      <button class="room-btn room-btn-primary" onclick="joinRoom()">Join Room</button>
+      <div class="room-error" id="roomErrorJoin"></div>
+    </div>
 
-    <div class="room-error" id="roomError"></div>
   </div>
 </div>
 <!-- SETTINGS MODAL -->
@@ -1331,6 +1408,17 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
     <div class="settings-error" id="settingsError"></div>
     <div class="settings-actions">
       <button class="settings-btn settings-btn-save" onclick="saveSettings()">Save Changes</button>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="settings-field">
+      <div class="settings-label">Active Tiers</div>
+      <div class="tier-picker" id="settingsTierPicker">
+        <button class="tier-pick-btn" data-tier="T6" onclick="toggleTierPick(this)">T6</button>
+        <button class="tier-pick-btn" data-tier="T7" onclick="toggleTierPick(this)">T7</button>
+        <button class="tier-pick-btn" data-tier="T8" onclick="toggleTierPick(this)">T8</button>
+        <button class="tier-pick-btn" data-tier="T9" onclick="toggleTierPick(this)">T9</button>
+        <button class="tier-pick-btn" data-tier="T10" onclick="toggleTierPick(this)">T10</button>
+      </div>
     </div>
     <div class="settings-divider"></div>
     <div class="settings-actions">
@@ -1381,14 +1469,12 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
 </nav>
 
 <div class="tabs">
-  <div class="tab active" onclick="switchTab('summary',this)">Summary</div>
-  <div class="tab" onclick="switchTab('t7',this)">Tier 7</div>
-  <div class="tab" onclick="switchTab('t8',this)">Tier 8</div>
-  <div class="tab" onclick="switchTab('t9',this)">Tier 9</div>
-  <div class="tab" onclick="switchTab('buyorders',this)">Assignment</div>
-  <div class="tab" onclick="switchTab('ordersheet',this)">Order Sheet</div>
-  <div class="tab" onclick="switchTab('crafters',this)">Crafters</div>
-  <div class="tab" onclick="switchTab('log',this)">Log</div>
+  <div class="tab active" data-page="summary" onclick="switchTab('summary',this)">Summary</div>
+  <!-- tier tabs rendered dynamically by renderTierTabs() -->
+  <div class="tab" data-page="buyorders" onclick="switchTab('buyorders',this)">Assignment</div>
+  <div class="tab" data-page="ordersheet" onclick="switchTab('ordersheet',this)">Order Sheet</div>
+  <div class="tab" data-page="crafters" onclick="switchTab('crafters',this)">Crafters</div>
+  <div class="tab" data-page="log" onclick="switchTab('log',this)">Log</div>
   <div class="tab-room-status">
     <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">✎ Edit Items</button>
     <button class="edit-mode-btn" id="rapidBtn" onclick="openRapidEntry()">Rapid Entry</button>
@@ -1398,10 +1484,8 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
 <div class="re-fs hidden" id="reFull">
   <div class="re-fs-nav">
     <div class="re-fs-title">Rapid Entry</div>
-    <div class="re-tier-picker">
-      <button class="re-tier-btn active" id="re-btn-T7" onclick="setRETier('T7')">T7</button>
-      <button class="re-tier-btn"        id="re-btn-T8" onclick="setRETier('T8')">T8</button>
-      <button class="re-tier-btn"        id="re-btn-T9" onclick="setRETier('T9')">T9</button>
+    <div class="re-tier-picker" id="reTierPicker">
+      <!-- rendered by openRapidEntry -->
     </div>
 
     <div class="re-fs-progress" id="reProgress"></div>
@@ -1431,80 +1515,8 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
     <div id="summary-content"></div>
   </div>
 
-  <div class="tab-content" id="tab-t7">
-    <div class="stat-row" id="stats-t7"></div>
-    <div class="filter-bar">
-      <button class="fbtn active"  id="t7-f-all"      onclick="setFilter('T7','all')">All</button>
-      <button class="fbtn"         id="t7-f-Helmet"   onclick="setFilter('T7','Helmet')">Helmet</button>
-      <button class="fbtn"         id="t7-f-Jacket"   onclick="setFilter('T7','Jacket')">Jacket</button>
-      <button class="fbtn"         id="t7-f-Shoes"    onclick="setFilter('T7','Shoes')">Shoes</button>
-      <button class="fbtn"         id="t7-f-Offhands" onclick="setFilter('T7','Offhands')">Offhands</button>
-      <button class="fbtn"         id="t7-f-Warrior"  onclick="setFilter('T7','Warrior')">Warrior</button>
-      <button class="fbtn"         id="t7-f-Hunter"   onclick="setFilter('T7','Hunter')">Hunter</button>
-      <button class="fbtn"         id="t7-f-Mage"     onclick="setFilter('T7','Mage')">Mage</button>
-      <input class="tier-search" id="t7-search" type="text" placeholder="Search items…" maxlength="40"
-        oninput="setSearch('T7',this.value)"
-        onkeydown="if(event.key==='Escape'){this.value='';setSearch('T7','')}" />
-    </div>
-    <div class="bulk-par-bar" id="bulk-par-T7">
-      <span class="bulk-par-label">Set par to</span>
-      <input class="bulk-par-input" type="number" id="bulk-par-val-T7" value="5" min="0"/>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T7','cat')">This Category</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T7','tier')">All T7</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T7','all')">All Tiers</button>
-    </div>
-    <div id="inv-t7"></div>
-  </div>
-
-  <div class="tab-content" id="tab-t8">
-    <div class="stat-row" id="stats-t8"></div>
-    <div class="filter-bar">
-      <button class="fbtn active"  id="t8-f-all"      onclick="setFilter('T8','all')">All</button>
-      <button class="fbtn"         id="t8-f-Helmet"   onclick="setFilter('T8','Helmet')">Helmet</button>
-      <button class="fbtn"         id="t8-f-Jacket"   onclick="setFilter('T8','Jacket')">Jacket</button>
-      <button class="fbtn"         id="t8-f-Shoes"    onclick="setFilter('T8','Shoes')">Shoes</button>
-      <button class="fbtn"         id="t8-f-Offhands" onclick="setFilter('T8','Offhands')">Offhands</button>
-      <button class="fbtn"         id="t8-f-Warrior"  onclick="setFilter('T8','Warrior')">Warrior</button>
-      <button class="fbtn"         id="t8-f-Hunter"   onclick="setFilter('T8','Hunter')">Hunter</button>
-      <button class="fbtn"         id="t8-f-Mage"     onclick="setFilter('T8','Mage')">Mage</button>
-      <input class="tier-search" id="t8-search" type="text" placeholder="Search items…" maxlength="40"
-        oninput="setSearch('T8',this.value)"
-        onkeydown="if(event.key==='Escape'){this.value='';setSearch('T8','')}" />
-    </div>
-    <div class="bulk-par-bar" id="bulk-par-T8">
-      <span class="bulk-par-label">Set par to</span>
-      <input class="bulk-par-input" type="number" id="bulk-par-val-T8" value="5" min="0"/>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T8','cat')">This Category</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T8','tier')">All T8</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T8','all')">All Tiers</button>
-    </div>
-    <div id="inv-t8"></div>
-  </div>
-
-  <div class="tab-content" id="tab-t9">
-    <div class="stat-row" id="stats-t9"></div>
-    <div class="filter-bar">
-      <button class="fbtn active"  id="t9-f-all"      onclick="setFilter('T9','all')">All</button>
-      <button class="fbtn"         id="t9-f-Helmet"   onclick="setFilter('T9','Helmet')">Helmet</button>
-      <button class="fbtn"         id="t9-f-Jacket"   onclick="setFilter('T9','Jacket')">Jacket</button>
-      <button class="fbtn"         id="t9-f-Shoes"    onclick="setFilter('T9','Shoes')">Shoes</button>
-      <button class="fbtn"         id="t9-f-Offhands" onclick="setFilter('T9','Offhands')">Offhands</button>
-      <button class="fbtn"         id="t9-f-Warrior"  onclick="setFilter('T9','Warrior')">Warrior</button>
-      <button class="fbtn"         id="t9-f-Hunter"   onclick="setFilter('T9','Hunter')">Hunter</button>
-      <button class="fbtn"         id="t9-f-Mage"     onclick="setFilter('T9','Mage')">Mage</button>
-      <input class="tier-search" id="t9-search" type="text" placeholder="Search items…" maxlength="40"
-        oninput="setSearch('T9',this.value)"
-        onkeydown="if(event.key==='Escape'){this.value='';setSearch('T9','')}" />
-    </div>
-    <div class="bulk-par-bar" id="bulk-par-T9">
-      <span class="bulk-par-label">Set par to</span>
-      <input class="bulk-par-input" type="number" id="bulk-par-val-T9" value="5" min="0"/>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T9','cat')">This Category</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T9','tier')">All T9</button>
-      <button class="bulk-par-btn" onclick="bulkSetPar('T9','all')">All Tiers</button>
-    </div>
-    <div id="inv-t9"></div>
-  </div>
+  <!-- tier tab-contents rendered dynamically -->
+  <div id="tier-tab-contents"></div>
   <div class="tab-content" id="tab-buyorders">
     <div class="filter-bar" id="bo-filter-bar">
       <button class="fbtn active" id="bo-f-all"      onclick="setFilterBO('all')">All</button>
@@ -1548,777 +1560,41 @@ body[data-role="crafter"] .note-input { pointer-events: none; }
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────
-const INIT = {
-  T7: {
-    'Helmet': [
-      {name:'Soldier Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Helmet of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hood of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Hat',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cowl of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Jacket': [
-      {name:'Soldier Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Armor of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Jacket of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Robe of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Shoes': [
-      {name:'Soldier Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boots of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shoes of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sandals of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Offhands': [
-      {name:'Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sarcophagus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Caitiff Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Facebreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Aegis',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Unbreakable Ward',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Leering Cane',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cryptcandle',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blueflame Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sacred Scepter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tome of Spells',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Eye of Secrets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Muisak',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Taproot',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Celestial Censer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Timelocked Grimoire',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Warrior': [
-      {name:'Broadsword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dual Swords',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claymore',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Clarent Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carving Sword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Galatine Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Kingmaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infinity Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battleaxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Halberd',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Greataxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carrioncaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Scythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bear Paws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Realmbreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crystal Reaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Morning Star',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bedrock Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Incubus Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Camlann Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Oathkeepers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dreadstorm Monarch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Polehammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tombhammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forge Hammers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grovekeeper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hand of Justice',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Truebolt Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brawler Gloves',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battle Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spiked Gauntlets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ursine Maulers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellfire Hands',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ravenstrike Cestus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fists of Avalon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forcepulse Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Light Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Weeping Repeater',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boltcasters',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Siegebow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Energy Shaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arclight Blasters',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Hunter': [
-      {name:'Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Warbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Longbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Whispering Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wailing Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bow of Badon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistpiercer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Skystrider Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Pike',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heron Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spirithunter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Trinity Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Daybreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rift Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wild Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druidic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blight Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rampant Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ironroot Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forgebark Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodletter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonfang',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Deathgivers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bridled Fury',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Twin Slayers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Quarterstaff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Iron-clad Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Double Bladed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Black Monk Stave',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Soulscythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Staff of Balance',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grailseeker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Phantom Twinblade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Prowling Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rootbound Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Primal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodmoon Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellspawn Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Earthrune Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lightcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stillgaze Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Mage': [
-      {name:'Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blazing Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brimstone Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dawnsong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wildfire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Flamewalker Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Divine Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fallen Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Redemption Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hallowfall',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifetouch Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Exalted Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Enigmatic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Occult Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Malevolent Locus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Witchwork Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Evensong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glacial Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hoarfrost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Permafrost Prism',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Icicle Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Chillhowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arctic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Skull',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifecurse Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Damnation Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shadowcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rotcaller Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-  },
-  T8: {
-    'Helmet': [
-      {name:'Soldier Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Helmet of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hood of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Hat',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cowl of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Jacket': [
-      {name:'Soldier Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Armor of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Jacket of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Robe of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Shoes': [
-      {name:'Soldier Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boots of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shoes of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sandals of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Offhands': [
-      {name:'Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sarcophagus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Caitiff Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Facebreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Aegis',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Unbreakable Ward',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Leering Cane',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cryptcandle',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blueflame Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sacred Scepter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tome of Spells',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Eye of Secrets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Muisak',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Taproot',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Celestial Censer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Timelocked Grimoire',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Warrior': [
-      {name:'Broadsword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dual Swords',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claymore',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Clarent Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carving Sword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Galatine Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Kingmaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infinity Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battleaxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Halberd',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Greataxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carrioncaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Scythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bear Paws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Realmbreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crystal Reaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Morning Star',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bedrock Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Incubus Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Camlann Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Oathkeepers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dreadstorm Monarch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Polehammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tombhammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forge Hammers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grovekeeper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hand of Justice',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Truebolt Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brawler Gloves',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battle Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spiked Gauntlets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ursine Maulers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellfire Hands',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ravenstrike Cestus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fists of Avalon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forcepulse Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Light Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Weeping Repeater',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boltcasters',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Siegebow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Energy Shaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arclight Blasters',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Hunter': [
-      {name:'Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Warbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Longbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Whispering Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wailing Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bow of Badon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistpiercer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Skystrider Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Pike',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heron Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spirithunter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Trinity Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Daybreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rift Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wild Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druidic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blight Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rampant Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ironroot Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forgebark Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodletter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonfang',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Deathgivers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bridled Fury',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Twin Slayers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Quarterstaff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Iron-clad Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Double Bladed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Black Monk Stave',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Soulscythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Staff of Balance',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grailseeker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Phantom Twinblade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Prowling Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rootbound Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Primal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodmoon Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellspawn Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Earthrune Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lightcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stillgaze Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Mage': [
-      {name:'Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blazing Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brimstone Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dawnsong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wildfire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Flamewalker Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Divine Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fallen Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Redemption Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hallowfall',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifetouch Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Exalted Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Enigmatic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Occult Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Malevolent Locus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Witchwork Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Evensong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glacial Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hoarfrost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Permafrost Prism',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Icicle Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Chillhowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arctic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Skull',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifecurse Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Damnation Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shadowcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rotcaller Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-  },
-  T9: {
-    'Helmet': [
-      {name:'Soldier Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Helmet',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Helmet of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Hood',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hood of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Cowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Hat',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cowl of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Jacket': [
-      {name:'Soldier Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Armor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Armor of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Jacket',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Jacket of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Robe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Robe of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Shoes': [
-      {name:'Soldier Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Knight Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Guardian Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Graveguard Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demon Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Judicator Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Duskweaver Boots',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boots of Valor',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mercenary Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hunter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Assassin Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellion Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Specter Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistwalker Shoes',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shoes of Tenacity',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Scholar Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cleric Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mage Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Royal Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druid Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fiend Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cultist Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Feyscale Sandals',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sandals of Purity',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Offhands': [
-      {name:'Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sarcophagus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Caitiff Shield',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Facebreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Aegis',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Unbreakable Ward',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Leering Cane',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cryptcandle',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blueflame Torch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Sacred Scepter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tome of Spells',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Eye of Secrets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Muisak',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Taproot',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Celestial Censer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Timelocked Grimoire',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Warrior': [
-      {name:'Broadsword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dual Swords',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claymore',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Clarent Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carving Sword',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Galatine Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Kingmaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infinity Blade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battleaxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Halberd',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Greataxe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Carrioncaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Scythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bear Paws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Realmbreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crystal Reaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Morning Star',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bedrock Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Incubus Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Camlann Mace',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Oathkeepers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dreadstorm Monarch',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Polehammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Tombhammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forge Hammers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grovekeeper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hand of Justice',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Truebolt Hammer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brawler Gloves',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Battle Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spiked Gauntlets',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ursine Maulers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellfire Hands',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ravenstrike Cestus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fists of Avalon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forcepulse Bracers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heavy Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Light Crossbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Weeping Repeater',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Boltcasters',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Siegebow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Energy Shaper',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arclight Blasters',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Hunter': [
-      {name:'Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Warbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Longbow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Whispering Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wailing Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bow of Badon',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Mistpiercer',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Skystrider Bow',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Pike',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Heron Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Spirithunter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Trinity Spear',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Daybreaker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rift Glaive',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Nature Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wild Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Druidic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blight Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rampant Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Ironroot Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Forgebark Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dagger Pair',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Claws',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodletter',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonfang',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Deathgivers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bridled Fury',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Twin Slayers',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Quarterstaff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Iron-clad Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Double Bladed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Black Monk Stave',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Soulscythe',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Staff of Balance',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Grailseeker',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Phantom Twinblade',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Prowling Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rootbound Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Primal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Bloodmoon Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hellspawn Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Earthrune Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lightcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Stillgaze Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-    'Mage': [
-      {name:'Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Fire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Infernal Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Blazing Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Brimstone Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Dawnsong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Wildfire Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Flamewalker Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Holy Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Divine Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Fallen Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Redemption Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hallowfall',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifetouch Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Exalted Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Arcane Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Enigmatic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Occult Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Malevolent Locus',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Witchwork Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Evensong',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Astral Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Frost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Glacial Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Hoarfrost Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Permafrost Prism',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Icicle Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Chillhowl',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Arctic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Great Cursed Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Demonic Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Cursed Skull',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Lifecurse Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Damnation Staff',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Shadowcaller',have:0,par:0,priority:false,ignore:false,note:""},
-      {name:'Rotcaller Staff',have:0,par:0,priority:false,ignore:false,note:""},
-    ],
-  },
+const ITEM_NAMES = {
+  'Helmet': ["Soldier Helmet", "Knight Helmet", "Guardian Helmet", "Royal Helmet", "Graveguard Helmet", "Demon Helmet", "Judicator Helmet", "Duskweaver Helmet", "Helmet of Valor", "Mercenary Hood", "Hunter Hood", "Assassin Hood", "Royal Hood", "Stalker Hood", "Hellion Hood", "Specter Hood", "Mistwalker Hood", "Hood of Tenacity", "Scholar Cowl", "Cleric Cowl", "Mage Cowl", "Royal Cowl", "Druid Cowl", "Fiend Cowl", "Cultist Cowl", "Feyscale Hat", "Cowl of Purity"],
+  'Jacket': ["Soldier Armor", "Knight Armor", "Guardian Armor", "Royal Armor", "Graveguard Armor", "Demon Armor", "Judicator Armor", "Duskweaver Armor", "Armor of Valor", "Mercenary Jacket", "Hunter Jacket", "Assassin Jacket", "Royal Jacket", "Stalker Jacket", "Hellion Jacket", "Specter Jacket", "Mistwalker Jacket", "Jacket of Tenacity", "Scholar Robe", "Cleric Robe", "Mage Robe", "Royal Robe", "Druid Robe", "Fiend Robe", "Cultist Robe", "Feyscale Robe", "Robe of Purity"],
+  'Shoes': ["Soldier Boots", "Knight Boots", "Guardian Boots", "Royal Boots", "Graveguard Boots", "Demon Boots", "Judicator Boots", "Duskweaver Boots", "Boots of Valor", "Mercenary Shoes", "Hunter Shoes", "Assassin Shoes", "Royal Shoes", "Stalker Shoes", "Hellion Shoes", "Specter Shoes", "Mistwalker Shoes", "Shoes of Tenacity", "Scholar Sandals", "Cleric Sandals", "Mage Sandals", "Royal Sandals", "Druid Sandals", "Fiend Sandals", "Cultist Sandals", "Feyscale Sandals", "Sandals of Purity"],
+  'Offhands': ["Shield", "Sarcophagus", "Caitiff Shield", "Facebreaker", "Astral Aegis", "Unbreakable Ward", "Torch", "Mistcaller", "Leering Cane", "Cryptcandle", "Blueflame Torch", "Sacred Scepter", "Tome of Spells", "Eye of Secrets", "Muisak", "Taproot", "Celestial Censer", "Timelocked Grimoire"],
+  'Warrior': ["Broadsword", "Dual Swords", "Claymore", "Clarent Blade", "Carving Sword", "Galatine Pair", "Kingmaker", "Infinity Blade", "Battleaxe", "Halberd", "Greataxe", "Carrioncaller", "Infernal Scythe", "Bear Paws", "Realmbreaker", "Crystal Reaper", "Mace", "Heavy Mace", "Morning Star", "Bedrock Mace", "Incubus Mace", "Camlann Mace", "Oathkeepers", "Dreadstorm Monarch", "Hammer", "Polehammer", "Great Hammer", "Tombhammer", "Forge Hammers", "Grovekeeper", "Hand of Justice", "Truebolt Hammer", "Brawler Gloves", "Battle Bracers", "Spiked Gauntlets", "Ursine Maulers", "Hellfire Hands", "Ravenstrike Cestus", "Fists of Avalon", "Forcepulse Bracers", "Crossbow", "Heavy Crossbow", "Light Crossbow", "Weeping Repeater", "Boltcasters", "Siegebow", "Energy Shaper", "Arclight Blasters"],
+  'Hunter': ["Bow", "Warbow", "Longbow", "Whispering Bow", "Wailing Bow", "Bow of Badon", "Mistpiercer", "Skystrider Bow", "Spear", "Pike", "Glaive", "Heron Spear", "Spirithunter", "Trinity Spear", "Daybreaker", "Rift Glaive", "Nature Staff", "Great Nature Staff", "Wild Staff", "Druidic Staff", "Blight Staff", "Rampant Staff", "Ironroot Staff", "Forgebark Staff", "Dagger", "Dagger Pair", "Claws", "Bloodletter", "Demonfang", "Deathgivers", "Bridled Fury", "Twin Slayers", "Quarterstaff", "Iron-clad Staff", "Double Bladed Staff", "Black Monk Stave", "Soulscythe", "Staff of Balance", "Grailseeker", "Phantom Twinblade", "Prowling Staff", "Rootbound Staff", "Primal Staff", "Bloodmoon Staff", "Hellspawn Staff", "Earthrune Staff", "Lightcaller", "Stillgaze Staff"],
+  'Mage': ["Fire Staff", "Great Fire Staff", "Infernal Staff", "Blazing Staff", "Brimstone Staff", "Dawnsong", "Wildfire Staff", "Flamewalker Staff", "Holy Staff", "Great Holy Staff", "Divine Staff", "Fallen Staff", "Redemption Staff", "Hallowfall", "Lifetouch Staff", "Exalted Staff", "Arcane Staff", "Great Arcane Staff", "Enigmatic Staff", "Occult Staff", "Malevolent Locus", "Witchwork Staff", "Evensong", "Astral Staff", "Frost Staff", "Great Frost Staff", "Glacial Staff", "Hoarfrost Staff", "Permafrost Prism", "Icicle Staff", "Chillhowl", "Arctic Staff", "Cursed Staff", "Great Cursed Staff", "Demonic Staff", "Cursed Skull", "Lifecurse Staff", "Damnation Staff", "Shadowcaller", "Rotcaller Staff"],
 };
+
+const TIERS_ALL = ['T6','T7','T8','T9','T10'];
+
+const INIT = Object.fromEntries(
+  TIERS_ALL.map(t => [t, Object.fromEntries(
+    Object.entries(ITEM_NAMES).map(([cat, names]) => [
+      cat, names.map(name => ({ name, have:0, par:0, priority:false, ignore:false, note:'' }))
+    ])
+  )])
+);
 
 // ── STATE ─────────────────────────────────────────────────────────────────
 let data     = JSON.parse(JSON.stringify(INIT));
-let filters  = { T7:'all', T8:'all', T9:'all' };
-let searches = { T7:'', T8:'', T9:'' };
+let filters  = Object.fromEntries(TIERS_ALL.map(t => [t, 'all']));
+let searches = Object.fromEntries(TIERS_ALL.map(t => [t, '']));
 let filterBO = 'all';
 let filterOS = 'all';
 let myRole   = localStorage.getItem('regear-role') || 'officer';
 document.body.dataset.role = myRole; // apply immediately so CSS restrictions take effect before any render
 let changelog = [];
 const MAX_LOG = 100;
-let pendingFulfill = null; // { tier, cat, name, btnEl }
+let pendingFulfill = null; // { tier, cat, name }
 let crafterPasswordHash = null; // loaded from payload
-let sorts    = { T7: { field: null, dir: 1 }, T8: { field: null, dir: 1 }, T9: { field: null, dir: 1 } };
+let sorts    = Object.fromEntries(TIERS_ALL.map(t => [t, { field: null, dir: 1 }]));
 let editMode = false;
-const TIERS  = ['T7','T8','T9'];
+let activeTiers = ['T7','T8','T9']; // loaded from room payload
 const need   = i => Math.max(0, i.par - i.have);
 
 // Debounced save — batches rapid ticker clicks into one write
@@ -2330,19 +1606,131 @@ function scheduleSave() {
 }
 
 // Single full re-render used after import/load
+
+
+function toggleTierPick(btn) {
+  // Must keep at least one tier active
+  const picker = btn.closest('.tier-picker');
+  const active = [...picker.querySelectorAll('.tier-pick-btn.active')];
+  if (btn.classList.contains('active') && active.length <= 1) return;
+  btn.classList.toggle('active');
+}
+
+function getPickedTiers(pickerId) {
+  return [...document.querySelectorAll(`#${pickerId} .tier-pick-btn.active`)]
+    .map(b => b.dataset.tier)
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
+async function applyActiveTiers(newTiers) {
+  if (!newTiers.length) return;
+  activeTiers.length = 0;
+  activeTiers.push(...newTiers.sort((a,b) => parseInt(a.slice(1)) - parseInt(b.slice(1))));
+  // Ensure data exists for all active tiers (new tiers get blank data)
+  for (const tier of activeTiers) {
+    if (!data[tier]) {
+      data[tier] = Object.fromEntries(
+        Object.entries(ITEM_NAMES).map(([cat, names]) => [
+          cat, names.map(name => ({ name, have:0, par:0, priority:false, ignore:false, note:'' }))
+        ])
+      );
+    }
+  }
+  renderAll();
+  await saveToStorage();
+  showToast('Tiers updated');
+}
+
+function renderTierTabs() {
+  // ── Tab buttons ──
+  const tabsEl = document.querySelector('.tabs');
+
+  // Remove existing tier tab buttons
+  tabsEl.querySelectorAll('.tab[data-tier]').forEach(el => el.remove());
+
+  // Insert tier tabs before Assignment tab in ascending order
+  const assignTab = document.querySelector('[onclick*="buyorders"]');
+  const sorted = [...activeTiers].sort((a,b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+  for (const tier of sorted) {
+    const t = tier.toLowerCase();
+    const btn = document.createElement('div');
+    btn.className = 'tab';
+    btn.dataset.tier = tier;
+    btn.setAttribute('onclick', `switchTab('${t}',this)`);
+    btn.textContent = tier.replace('T', 'Tier ');
+    tabsEl.insertBefore(btn, assignTab);
+  }
+
+  // ── Tab content divs ──
+  const container = document.getElementById('tier-tab-contents');
+  container.innerHTML = '';
+  for (const tier of activeTiers) {
+    const t = tier.toLowerCase();
+    const div = document.createElement('div');
+    div.className = 'tab-content';
+    div.id = `tab-${t}`;
+    div.innerHTML = `
+      <div class="stat-row" id="stats-${t}"></div>
+      <div class="filter-bar">
+        <button class="fbtn active" id="${t}-f-all"      onclick="setFilter('${tier}','all')">All</button>
+        <button class="fbtn"        id="${t}-f-Helmet"   onclick="setFilter('${tier}','Helmet')">Helmet</button>
+        <button class="fbtn"        id="${t}-f-Jacket"   onclick="setFilter('${tier}','Jacket')">Jacket</button>
+        <button class="fbtn"        id="${t}-f-Shoes"    onclick="setFilter('${tier}','Shoes')">Shoes</button>
+        <button class="fbtn"        id="${t}-f-Offhands" onclick="setFilter('${tier}','Offhands')">Offhands</button>
+        <button class="fbtn"        id="${t}-f-Warrior"  onclick="setFilter('${tier}','Warrior')">Warrior</button>
+        <button class="fbtn"        id="${t}-f-Hunter"   onclick="setFilter('${tier}','Hunter')">Hunter</button>
+        <button class="fbtn"        id="${t}-f-Mage"     onclick="setFilter('${tier}','Mage')">Mage</button>
+        <input class="tier-search" id="${t}-search" type="text" placeholder="Search items…" maxlength="40"
+          oninput="setSearch('${tier}',this.value)"
+          onkeydown="if(event.key==='Escape'){this.value='';setSearch('${tier}','')}" />
+      </div>
+      <div class="bulk-par-bar" id="bulk-par-${tier}">
+        <span class="bulk-par-label">Set par to</span>
+        <input class="bulk-par-input" type="number" id="bulk-par-val-${tier}" value="5" min="0"/>
+        <button class="bulk-par-btn" onclick="bulkSetPar('${tier}','cat')">This Category</button>
+        <button class="bulk-par-btn" onclick="bulkSetPar('${tier}','tier')">All ${tier}</button>
+        <button class="bulk-par-btn" onclick="bulkSetPar('${tier}','all')">All Tiers</button>
+      </div>
+      <div id="inv-${t}"></div>`;
+    container.appendChild(div);
+  }
+
+  // Update tabMap for keyboard shortcuts
+  rebuildTabMap();
+}
+
+function rebuildTabMap() {
+  // Called after renderTierTabs — updates the keyboard shortcut map
+  // Tab order: Summary(1), ...tiers..., Assignment, Order Sheet, Crafters, Log
+  const allTabs = [...document.querySelectorAll('.tabs .tab')];
+  window._tabMap = {};
+  allTabs.forEach((tab, i) => {
+    const key = String(i + 1);
+    const onclick = tab.getAttribute('onclick') || '';
+    const match = onclick.match(/switchTab\('([^']+)'/);
+    if (match) window._tabMap[key] = match[1];
+  });
+}
+
+function getActiveTierTab() {
+  return activeTiers.find(t =>
+    document.getElementById('tab-' + t.toLowerCase())?.classList.contains('active')
+  );
+}
+
 function renderAll() {
-  TIERS.forEach(t => renderTier(t));
+  renderTierTabs();
+  activeTiers.forEach(t => renderTier(t));
   renderBuyOrders();
   renderOrderSheet();
   renderSummary();
-  renderLog();
   renderCrafters();
   renderLog();
 }
 
 // Partial re-render for data mutations (crafters unchanged)
 function renderData() {
-  TIERS.forEach(t => renderTier(t));
+  activeTiers.forEach(t => renderTier(t));
   renderBuyOrders();
   renderOrderSheet();
   renderSummary();
@@ -2362,7 +1750,7 @@ function toggleEditMode() {
   const btn = document.getElementById('editModeBtn');
   btn.classList.toggle('active', editMode);
   btn.textContent = editMode ? '✎ Done Editing' : '✎ Edit Items';
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     document.getElementById(`bulk-par-${tier}`)?.classList.toggle('visible', editMode);
   }
   renderData();
@@ -2372,7 +1760,7 @@ function bulkSetPar(sourceTier, scope) {
   const val = parseInt(document.getElementById(`bulk-par-val-${sourceTier}`).value, 10);
   if (isNaN(val) || val < 0) return;
 
-  const tiersToUpdate = scope === 'all' ? TIERS : [sourceTier];
+  const tiersToUpdate = scope === 'all' ? activeTiers : [sourceTier];
   const catFilter = filters[sourceTier]; // 'all' or a specific category name
   for (const tier of tiersToUpdate) {
     for (const [cat, items] of Object.entries(data[tier])) {
@@ -2409,7 +1797,7 @@ function setFilter(tier, f) {
   filters[tier] = f;
   searches[tier] = '';
   const t = tier.toLowerCase();
-  ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
+  CAT_FILTERS.forEach(x => {
     document.getElementById(`${t}-f-${x}`)?.classList.toggle('active', x === f);
   });
   const searchEl = document.getElementById(`${t}-search`);
@@ -2418,19 +1806,17 @@ function setFilter(tier, f) {
 }
 
 
+const CAT_FILTERS = ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'];
+
 function setFilterBO(f) {
   filterBO = f;
-  ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
-    document.getElementById(`bo-f-${x}`)?.classList.toggle('active', x === f);
-  });
+  CAT_FILTERS.forEach(x => document.getElementById(`bo-f-${x}`)?.classList.toggle('active', x === f));
   renderBuyOrders();
 }
 
 function setFilterOS(f) {
   filterOS = f;
-  ['all','Helmet','Jacket','Shoes','Offhands','Warrior','Hunter','Mage'].forEach(x => {
-    document.getElementById(`os-f-${x}`)?.classList.toggle('active', x === f);
-  });
+  CAT_FILTERS.forEach(x => document.getElementById(`os-f-${x}`)?.classList.toggle('active', x === f));
   renderOrderSheet();
 }
 
@@ -2528,7 +1914,6 @@ function renderTier(tier) {
 
       const tr = document.createElement('tr');
       tr.className = rc;
-      tr.dataset.nav = 'true';
       tr.innerHTML = `
         <td class="td-name">${item.name}</td>
         <td class="td-ctr td-have"><div class="ticker">
@@ -2631,20 +2016,20 @@ function logChange(action, batchKey) {
   if (changelog.length > MAX_LOG) changelog.length = MAX_LOG;
 }
 
-function adj(tier, cat, idx, field, d, event) {
-  const mult = event?.shiftKey ? 10 : 1;
+function mutateItem(tier, cat, idx, field, newVal) {
   const item = data[tier][cat][idx];
   const oldVal = item[field];
-  item[field] = Math.max(0, oldVal + d * mult);
-  if (item[field] !== oldVal) logChange(`${field === 'have' ? 'Have' : 'Par'} ${item.name} (${tier}) ${oldVal}→${item[field]}`, `${field}-${tier}-${cat}-${idx}`);
+  item[field] = Math.max(0, newVal);
+  if (item[field] !== oldVal)
+    logChange(`${field === 'have' ? 'Have' : 'Par'} ${item.name} (${tier}) ${oldVal}→${item[field]}`, `${field}-${tier}-${cat}-${idx}`);
   renderData(); scheduleSave();
 }
+function adj(tier, cat, idx, field, d, event) {
+  const mult = event?.shiftKey ? 10 : 1;
+  mutateItem(tier, cat, idx, field, data[tier][cat][idx][field] + d * mult);
+}
 function setV(tier, cat, idx, field, v) {
-  const item = data[tier][cat][idx];
-  const oldVal = item[field];
-  item[field] = Math.max(0, parseInt(v) || 0);
-  if (item[field] !== oldVal) logChange(`${field === 'have' ? 'Have' : 'Par'} ${item.name} (${tier}) ${oldVal}→${item[field]}`, `${field}-${tier}-${cat}-${idx}`);
-  renderData(); scheduleSave();
+  mutateItem(tier, cat, idx, field, parseInt(v) || 0);
 }
 function toggleF(tier, cat, idx, flag) {
   const item = data[tier][cat][idx];
@@ -2662,12 +2047,12 @@ function toggleCrafterAssignment(tier, cat, itemName, crafterName) {
   crafterAssignments[key] = crafterAssignments[key] === crafterName ? null : crafterName;
   renderBuyOrders();
   renderOrderSheet();
-  saveToStorage();
+  scheduleSave();
 }
 
 function renderBuyOrders() {
-  const cols = Object.fromEntries(TIERS.map(t => [t, []]));
-  for (const tier of TIERS) {
+  const cols = Object.fromEntries(activeTiers.map(t => [t, []]));
+  for (const tier of activeTiers) {
     for (const [cat, items] of Object.entries(data[tier])) {
       for (const i of items) {
         if (!i.hidden && !i.ignore && need(i) > 0 && (filterBO === 'all' || cat === filterBO))
@@ -2679,17 +2064,16 @@ function renderBuyOrders() {
 
   const c = document.getElementById('buyOrders');
   c.innerHTML = '';
-  for (const key of TIERS) {
+  for (const key of activeTiers) {
     const div = document.createElement('div');
     div.innerHTML = `<div class="buy-col-head">${key}<span>${cols[key].length} needed</span></div>`;
     if (!cols[key].length) {
       div.innerHTML += `<div class="buy-empty">✓ All stocked</div>`;
     } else {
-      for (const i of cols[key]) {
+      const rowsHTML = cols[key].map(i => {
         const crafterList = getCraftersForItem(i.name);
         const assignKey   = `${i.tier}-${i.cat}-${i.name}`;
         const assigned    = crafterAssignments[assignKey];
-
         const crafterHTML = crafterList.length
           ? crafterList.map(n => {
               const isAssigned = assigned === n;
@@ -2700,19 +2084,16 @@ function renderBuyOrders() {
               >${n}</span>`;
             }).join('')
           : `<span class="crafter-tag-none">No crafters</span>`;
-
-        const assignedLabel = assigned
-          ? `<span class="buy-row-assigned">→ ${assigned}</span>`
-          : '';
-
-        div.innerHTML += `<div class="buy-row ${i.priority?'is-pri':''}">
+        const assignedLabel = assigned ? `<span class="buy-row-assigned">→ ${assigned}</span>` : '';
+        return `<div class="buy-row ${i.priority?'is-pri':''}">
           <div class="buy-row-inner">
             <div class="buy-row-name">${i.priority?'★ ':''}${i.name}${assignedLabel}</div>
             <div class="buy-row-crafters">${crafterHTML}</div>
           </div>
           <div class="buy-row-need">−${i.n}</div>
         </div>`;
-      }
+      }).join('');
+      div.innerHTML += rowsHTML;
     }
     c.appendChild(div);
   }
@@ -2992,8 +2373,6 @@ const CRAFTER_CATS = [
 let crafters = {};
 CRAFTER_CATS.forEach(c => { crafters[c.id] = []; });
 
-// CAT_TO_CRAFTERS removed — using NAME_TO_CRAFTER_CAT per-item lookup
-
 // Pre-group crafter categories to avoid repeated .filter() calls in renderCrafters
 const CRAFTER_GROUPS = CRAFTER_CATS.reduce((acc, cat) => {
   (acc[cat.group] ??= []).push(cat);
@@ -3009,7 +2388,10 @@ function renderCrafters() {
   const container = document.getElementById('crafters-content');
   container.innerHTML = '';
   for (const [group, cats] of Object.entries(CRAFTER_GROUPS)) {
-    container.innerHTML += `<div class="section-label">${group}</div>`;
+    const labelEl = document.createElement("div");
+    labelEl.className = "section-label";
+    labelEl.textContent = group;
+    container.appendChild(labelEl);
     const grid = document.createElement('div');
     grid.className = 'crafters-grid';
     for (const cat of cats) {
@@ -3047,7 +2429,7 @@ function addCrafter(catId) {
   input.value = '';
   renderCrafters();
   renderBuyOrders();
-  saveToStorage();
+  scheduleSave();
 }
 
 function removeCrafter(catId, idx) {
@@ -3063,7 +2445,7 @@ function removeCrafter(catId, idx) {
   renderCrafters();
   renderBuyOrders();
   renderOrderSheet();
-  saveToStorage();
+  scheduleSave();
 }
 
 // ── SUMMARY ───────────────────────────────────────────────────────────────
@@ -3074,7 +2456,7 @@ function renderSummary() {
   // ── Single pass: compute global stats + per-tier stats simultaneously ──
   let grandTotal = 0, grandNeeded = 0, grandCraft = 0;
   const tierStats = {};
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     let tierTotal = 0, tierNeeded = 0;
     const catStats = {};
     for (const [cat, items] of Object.entries(data[tier])) {
@@ -3119,7 +2501,7 @@ function renderSummary() {
 
   // Critical items: priority + need > 0
   const critical = [];
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     for (const [cat, items] of Object.entries(data[tier])) {
       for (const i of items) {
         if (!i.hidden && i.priority && need(i) > 0)
@@ -3153,7 +2535,7 @@ function renderSummary() {
   const tierGrid = document.createElement('div');
   tierGrid.className = 'summary-tiers';
 
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     const { tierTotal, tierNeeded, catStats } = tierStats[tier];
     const catRows = Object.entries(catStats).map(([cat, { visCount, catNeeded }]) => {
       const have = visCount - catNeeded;
@@ -3569,7 +2951,7 @@ function renderOrderSheet() {
 
   // Build flat item list — all craft items below par, regardless of assignment
   const allOrderItems = [];
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     for (const [cat, catItems] of Object.entries(data[tier])) {
       for (const i of catItems) {
         if (!i.hidden && !i.ignore && need(i) > 0 && (filterOS === 'all' || cat === filterOS)) {
@@ -3624,8 +3006,8 @@ function renderOrderSheet() {
 
   // Totals
   const BASIC_MATS = new Set(['Steel Bar', 'Wooden Plank', 'Cloth', 'Worked Leather']);
-  const totals = Object.fromEntries(TIERS.map(t => [t, {}]));
-  const royalSigils = Object.fromEntries(TIERS.map(t => [t, 0]));
+  const totals = Object.fromEntries(activeTiers.map(t => [t, {}]));
+  const royalSigils = Object.fromEntries(activeTiers.map(t => [t, 0]));
   for (const i of enriched) {
     if (ROYAL_ITEMS.has(i.name)) royalSigils[i.tier] += i.n;
     if (!i.mats?.length) continue;
@@ -3634,12 +3016,12 @@ function renderOrderSheet() {
     }
   }
 
-  const activeTiers = TIERS.filter(t => Object.keys(totals[t]).length || royalSigils[t]);
-  if (activeTiers.length) {
+  const tiersWithData = activeTiers.filter(t => Object.keys(totals[t]).length || royalSigils[t]);
+  if (tiersWithData.length) {
     html += `<hr class="os-divider">
     <div class="os-totals-head">Total Materials Required</div>
     <div class="os-totals-grid">`;
-    for (const tier of activeTiers) {
+    for (const tier of tiersWithData) {
       const rows = Object.entries(totals[tier]).sort(([a],[b]) => a.localeCompare(b));
       if (royalSigils[tier]) rows.push(['Miscellaneous Sigils', royalSigils[tier]]);
       html += `<div class="os-totals-card">
@@ -3684,7 +3066,7 @@ function renderOrderSheet() {
 
 function exportBuyOrders() {
   const allItems = [];
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
     for (const [cat, catItems] of Object.entries(data[tier])) {
       for (const i of catItems) {
         if (!i.hidden && !i.ignore && need(i) > 0) {
@@ -3746,8 +3128,8 @@ function exportBuyOrders() {
   // Total materials summary — broken down by tier
   const BASIC_MATS = new Set(['Steel Bar', 'Wooden Plank', 'Cloth', 'Worked Leather']);
 
-  const totals = Object.fromEntries(TIERS.map(t => [t, {}]));
-  const royalSigils = Object.fromEntries(TIERS.map(t => [t, 0]));
+  const totals = Object.fromEntries(activeTiers.map(t => [t, {}]));
+  const royalSigils = Object.fromEntries(activeTiers.map(t => [t, 0]));
   for (const i of enriched) {
     if (ROYAL_ITEMS.has(i.name)) royalSigils[i.tier] += i.n;
     if (!i.mats?.length) continue;
@@ -3756,12 +3138,12 @@ function exportBuyOrders() {
     }
   }
 
-  const anyTotals = TIERS.some(t => Object.keys(totals[t]).length || royalSigils[t]);
+  const anyTotals = activeTiers.some(t => Object.keys(totals[t]).length || royalSigils[t]);
   if (anyTotals) {
     lines.push(`═══════════════════════════════════`);
     lines.push(`TOTAL MATERIALS REQUIRED`);
     lines.push(`═══════════════════════════════════`);
-    for (const tier of TIERS) {
+    for (const tier of activeTiers) {
       const tierMats = totals[tier];
       const sigils   = royalSigils[tier];
       if (!Object.keys(tierMats).length && !sigils) continue;
@@ -3779,7 +3161,7 @@ function exportBuyOrders() {
     lines.push(`═══════════════════════════════════`);
     lines.push(`EXPECTED RETURN (15%)`);
     lines.push(`═══════════════════════════════════`);
-    for (const tier of TIERS) {
+    for (const tier of activeTiers) {
       const tierMats = totals[tier];
       const returnMats = Object.entries(tierMats).filter(([mat]) => BASIC_MATS.has(mat));
       if (!returnMats.length) continue;
@@ -3846,6 +3228,22 @@ async function createRoom() {
   const password_hash = await hashPassword(password);
   let code = generateRoomCode();
 
+  // Apply tier selection before building payload
+  const pickedTiers = getPickedTiers('createTierPicker');
+  if (pickedTiers.length) {
+    activeTiers.length = 0;
+    activeTiers.push(...pickedTiers.sort((a,b) => parseInt(a.slice(1)) - parseInt(b.slice(1))));
+    for (const tier of activeTiers) {
+      if (!data[tier]) {
+        data[tier] = Object.fromEntries(
+          Object.entries(ITEM_NAMES).map(([cat, names]) => [
+            cat, names.map(name => ({ name, have:0, par:0, priority:false, ignore:false, note:'' }))
+          ])
+        );
+      }
+    }
+  }
+
   for (let attempt = 0; attempt < 5; attempt++) {
     const payload = buildPayload();
     const { error } = await sb.from('rooms').insert({ code, name, payload, password_hash });
@@ -3878,7 +3276,7 @@ async function joinRoom() {
 
   const { data, error } = await sb.from('rooms').select('payload, password_hash, name').eq('code', code).single();
   if (error || !data) {
-    setRoomError('Room not found. Double-check the code.');
+    setRoomError('Room not found. Double-check the code.', 'join');
     document.getElementById('joinCodeInput').disabled    = false;
     document.getElementById('joinPasswordInput').disabled = false;
     return;
@@ -3892,7 +3290,7 @@ async function joinRoom() {
   } else if (savedCrafterHash && password_hash === savedCrafterHash) {
     myRole = 'crafter';
   } else {
-    setRoomError('Incorrect password.');
+    setRoomError('Incorrect password.', 'join');
     document.getElementById('joinCodeInput').disabled    = false;
     document.getElementById('joinPasswordInput').disabled = false;
     return;
@@ -3966,21 +3364,39 @@ function leaveRoom() {
   document.getElementById('roomOverlay').classList.remove('hidden');
   document.getElementById('saveTimestamp').textContent = 'Not synced';
   // Reset data to blank
+  activeTiers.length = 0; activeTiers.push('T7','T8','T9');
   Object.assign(data, JSON.parse(JSON.stringify(INIT)));
   Object.keys(crafterAssignments).forEach(k => delete crafterAssignments[k]);
   for (const id of Object.keys(crafters)) crafters[id] = [];
+  changelog.length = 0;
   // Reset UI state
   if (editMode) {
     editMode = false;
     const btn = document.getElementById('editModeBtn');
     btn.classList.remove('active');
     btn.textContent = '✎ Edit Items';
-    TIERS.forEach(t => document.getElementById(`bulk-par-${t}`)?.classList.remove('visible'));
+    activeTiers.forEach(t => document.getElementById(`bulk-par-${t}`)?.classList.remove('visible'));
   }
 }
 
-function setRoomError(msg) {
-  document.getElementById('roomError').textContent = msg;
+function showRoomScreen(screen) {
+  document.getElementById('roomScreenChoice').style.display = screen === 'choice' ? '' : 'none';
+  document.getElementById('roomScreenCreate').style.display = screen === 'create' ? '' : 'none';
+  document.getElementById('roomScreenJoin').style.display   = screen === 'join'   ? '' : 'none';
+  // Clear errors on switch
+  ['roomError','roomErrorJoin'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+  // Focus first input
+  if (screen === 'create') document.getElementById('createNameInput')?.focus();
+  if (screen === 'join')   document.getElementById('joinCodeInput')?.focus();
+}
+
+function setRoomError(msg, screen='create') {
+  const id = screen === 'join' ? 'roomErrorJoin' : 'roomError';
+  const el = document.getElementById(id);
+  if (el) el.textContent = msg;
 }
 
 
@@ -3992,14 +3408,19 @@ let reIndex     = 0;    // currently active item index
 let reChanges   = {};   // key: `${tier}-${cat}-${name}` → new have value
 
 function openRapidEntry() {
-  reChanges   = {};
+  reChanges = {};
   document.getElementById('reFull').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
+
+  // Build tier picker buttons from activeTiers
+  const picker = document.getElementById('reTierPicker');
+  picker.innerHTML = activeTiers.map(t =>
+    `<button class="re-tier-btn" id="re-btn-${t}" onclick="setRETier('${t}')">${t}</button>`
+  ).join('');
+
   // Default to whichever tier tab is currently active
-  const activeTier = ['T7','T8','T9'].find(t =>
-    document.getElementById('tab-' + t.toLowerCase())?.classList.contains('active')
-  );
-  setRETier(activeTier || reTier);
+  const activeTier = getActiveTierTab();
+  setRETier(activeTier || reTier || activeTiers[0]);
 }
 
 function closeRapidEntry() {
@@ -4280,6 +3701,10 @@ function openSettings() {
     }).join('');
   }
 
+  // Sync tier picker to current activeTiers
+  document.querySelectorAll('#settingsTierPicker .tier-pick-btn').forEach(btn => {
+    btn.classList.toggle('active', activeTiers.includes(btn.dataset.tier));
+  });
   document.getElementById('settingsOverlay').classList.remove('hidden');
 }
 
@@ -4299,7 +3724,13 @@ async function saveSettings() {
   if (newPassword) update.password_hash = await hashPassword(newPassword);
   if (newCrafterPass) crafterPasswordHash = await hashPassword(newCrafterPass);
 
-  // Always save payload so crafterPasswordHash persists
+  // Apply tier changes before building payload so new tiers are included
+  const newTiers = getPickedTiers('settingsTierPicker');
+  const numSort = arr => [...arr].sort((a,b) => parseInt(a.slice(1)) - parseInt(b.slice(1)));
+  const tiersChanged = JSON.stringify(numSort(newTiers)) !== JSON.stringify(numSort(activeTiers));
+  if (tiersChanged) await applyActiveTiers(newTiers);
+
+  // Build and save payload (includes updated activeTiers)
   update.payload = buildPayload();
   const { error } = await sb.from('rooms').update(update).eq('code', currentRoom);
   if (error) { document.getElementById('settingsError').textContent = 'Failed to save. Try again.'; return; }
@@ -4316,7 +3747,8 @@ async function resetInventory() {
   if (!currentRoom) return;
 
   // Reset local state
-  for (const tier of TIERS) {
+  for (const tier of activeTiers) {
+    if (!data[tier]) continue;
     for (const items of Object.values(data[tier])) {
       for (const item of items) {
         item.have = 0; item.par = 0; item.priority = false; item.ignore = false; item.hidden = false; item.note = '';
@@ -4362,14 +3794,28 @@ async function restoreBackup(index) {
 }
 
 function buildPayload() {
-  return { data, crafters, crafterAssignments, crafterPasswordHash, changelog };
+  return { data, crafters, crafterAssignments, crafterPasswordHash, changelog, activeTiers };
 }
 
 function mergeData(saved) {
   if (saved.crafterPasswordHash !== undefined) crafterPasswordHash = saved.crafterPasswordHash;
   if (saved.changelog) { changelog.length = 0; changelog.push(...saved.changelog); }
+  if (saved.activeTiers?.length) {
+    activeTiers.length = 0;
+    activeTiers.push(...saved.activeTiers.sort((a,b) => parseInt(a.slice(1)) - parseInt(b.slice(1))));
+    // Ensure data exists for all active tiers
+    for (const tier of activeTiers) {
+      if (!data[tier]) {
+        data[tier] = Object.fromEntries(
+          Object.entries(ITEM_NAMES).map(([cat, names]) => [
+            cat, names.map(name => ({ name, have:0, par:0, priority:false, ignore:false, note:'' }))
+          ])
+        );
+      }
+    }
+  }
   if (saved.data) {
-    for (const tier of TIERS) {
+    for (const tier of activeTiers) {
       if (!saved.data[tier]) continue;
       for (const [cat, savedItems] of Object.entries(saved.data[tier])) {
         if (!data[tier]?.[cat]) continue;
@@ -4501,13 +3947,13 @@ document.addEventListener('keydown', e => {
   const tag = document.activeElement?.tagName;
   if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-  const tabMap = { '1': 'summary', '2': 't7', '3': 't8', '4': 't9', '5': 'buyorders', '6': 'ordersheet', '7': 'crafters', '8': 'log' };
+  const tabMap = window._tabMap || {};
   if (tabMap[e.key]) {
-    const tabEl = document.querySelector(`.tab:nth-child(${Object.keys(tabMap).indexOf(e.key) + 1})`);
+    const tabEl = document.querySelector(`.tab[onclick*="'${tabMap[e.key]}'"]`);
     if (tabEl) { switchTab(tabMap[e.key], tabEl); e.preventDefault(); }
   } else if (e.key === 'e' || e.key === 'E') {
     const active = document.querySelector('.tab-content.active');
-    if (active && ['tab-t7','tab-t8','tab-t9'].includes(active.id)) toggleEditMode();
+    if (active && activeTiers.map(t=>'tab-'+t.toLowerCase()).includes(active.id)) toggleEditMode();
   } else if (e.key === 'r' || e.key === 'R') {
     if (myRole !== 'crafter') openRapidEntry();
   } else if (e.key === 'd' || e.key === 'D') {
