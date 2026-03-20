@@ -672,6 +672,23 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
 .inv-table th.sortable:hover { color: var(--ink2); }
 .inv-table th.sort-active { color: var(--accent); }
 .sort-arrow { margin-left: 4px; font-size: 0.6rem; opacity: 0.7; }
+
+/* ── COPY HIDDEN BAR ─────────────────────────────────── */
+.copy-hidden-bar {
+  display: none; align-items: center; gap: 10px;
+  padding: 0 0 16px; flex-wrap: wrap;
+}
+.copy-hidden-bar.visible { display: flex; }
+.copy-hidden-select {
+  background: var(--bg2); border: 1px solid var(--border);
+  color: var(--ink2); font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.78rem; font-weight: 600; padding: 5px 10px;
+  border-radius: 5px; cursor: pointer; outline: none;
+  transition: border-color 0.15s;
+}
+.copy-hidden-select:focus { border-color: var(--accent); }
+
+
 .bulk-par-bar {
   display: none; align-items: center; gap: 10px;
   padding: 8px 0 16px; flex-wrap: wrap;
@@ -699,6 +716,8 @@ main { max-width: 1300px; margin: 0 auto; padding: 28px 28px 0; }
   transition: all 0.15s; white-space: nowrap;
 }
 .bulk-par-btn:hover { border-color: var(--accent); color: var(--accent); }
+.copy-undo-btn { border-color: var(--amber-bd); color: var(--amber); background: var(--amber-bg); }
+.copy-undo-btn:hover { border-color: var(--amber); color: var(--amber); }
 
 .theme-btn {
   width: 32px; height: 32px; border-radius: 50%;
@@ -1591,6 +1610,7 @@ document.body.dataset.role = myRole; // apply immediately so CSS restrictions ta
 let changelog = [];
 const MAX_LOG = 100;
 let pendingFulfill = null; // { tier, cat, name }
+const copyUndoSnap = {}; // key: `hidden-T8` or `par-T8` => [{name,cat,val}...]
 let crafterPasswordHash = null; // loaded from payload
 let sorts    = Object.fromEntries(TIERS_ALL.map(t => [t, { field: null, dir: 1 }]));
 let editMode = false;
@@ -1691,6 +1711,24 @@ function renderTierTabs() {
         <button class="bulk-par-btn" onclick="bulkSetPar('${tier}','tier')">All ${tier}</button>
         <button class="bulk-par-btn" onclick="bulkSetPar('${tier}','all')">All Tiers</button>
       </div>
+      <div class="copy-hidden-bar" id="copy-hidden-${tier}">
+        <span class="bulk-par-label">Copy hidden from</span>
+        <select class="copy-hidden-select" id="copy-hidden-src-${tier}">
+          ${activeTiers.filter(t => t !== tier).map(t => `<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <span class="bulk-par-label">to ${tier}</span>
+        <button class="bulk-par-btn" onclick="copyHiddenAcross('${tier}', document.getElementById('copy-hidden-src-${tier}').value)">Apply</button>
+        <button class="bulk-par-btn copy-undo-btn" id="undo-hidden-${tier}" style="display:none" onclick="undoCopy('hidden','${tier}')">Undo</button>
+      </div>
+      <div class="copy-hidden-bar" id="copy-par-${tier}">
+        <span class="bulk-par-label">Copy pars from</span>
+        <select class="copy-hidden-select" id="copy-par-src-${tier}">
+          ${activeTiers.filter(t => t !== tier).map(t => `<option value="${t}">${t}</option>`).join('')}
+        </select>
+        <span class="bulk-par-label">to ${tier}</span>
+        <button class="bulk-par-btn" onclick="copyParsAcross('${tier}', document.getElementById('copy-par-src-${tier}').value)">Apply</button>
+        <button class="bulk-par-btn copy-undo-btn" id="undo-par-${tier}" style="display:none" onclick="undoCopy('par','${tier}')">Undo</button>
+      </div>
       <div id="inv-${t}"></div>`;
     container.appendChild(div);
   }
@@ -1752,8 +1790,92 @@ function toggleEditMode() {
   btn.textContent = editMode ? '✎ Done Editing' : '✎ Edit Items';
   for (const tier of activeTiers) {
     document.getElementById(`bulk-par-${tier}`)?.classList.toggle('visible', editMode);
+    const chBar = document.getElementById(`copy-hidden-${tier}`);
+    if (chBar) chBar.classList.toggle('visible', editMode && activeTiers.length > 1);
+    const cpBar = document.getElementById(`copy-par-${tier}`);
+    if (cpBar) cpBar.classList.toggle('visible', editMode && activeTiers.length > 1);
   }
   renderData();
+}
+
+function copyHiddenAcross(destTier, srcTier) {
+  if (!srcTier || srcTier === destTier) return;
+  if (!data[srcTier] || !data[destTier]) return;
+  // Snapshot before applying
+  const snap = [];
+  for (const [cat, items] of Object.entries(data[destTier]))
+    for (const i of items) snap.push({ name: i.name, cat, val: i.hidden });
+  copyUndoSnap[`hidden-${destTier}`] = snap;
+  let count = 0;
+  for (const [cat, srcItems] of Object.entries(data[srcTier])) {
+    const destItems = data[destTier][cat];
+    if (!destItems) continue;
+    const srcMap = new Map(srcItems.map(i => [i.name, i.hidden]));
+    for (const item of destItems) {
+      const srcHidden = srcMap.get(item.name);
+      if (srcHidden !== undefined && item.hidden !== srcHidden) {
+        item.hidden = srcHidden;
+        count++;
+      }
+    }
+  }
+  if (count) {
+    logChange(`Copied hidden items from ${srcTier} to ${destTier} (${count} item${count !== 1 ? 's' : ''} affected)`);
+    renderData();
+    scheduleSave();
+    showToast(`Copied hidden from ${srcTier} → ${destTier}`);
+    document.getElementById(`undo-hidden-${destTier}`)?.style.setProperty('display', 'inline-flex');
+  } else {
+    showToast(`${srcTier} and ${destTier} already match`);
+  }
+}
+
+
+function copyParsAcross(destTier, srcTier) {
+  if (!srcTier || srcTier === destTier) return;
+  if (!data[srcTier] || !data[destTier]) return;
+  // Snapshot before applying
+  const snap = [];
+  for (const [cat, items] of Object.entries(data[destTier]))
+    for (const i of items) snap.push({ name: i.name, cat, val: i.par });
+  copyUndoSnap[`par-${destTier}`] = snap;
+  let count = 0;
+  for (const [cat, srcItems] of Object.entries(data[srcTier])) {
+    const destItems = data[destTier][cat];
+    if (!destItems) continue;
+    const srcMap = new Map(srcItems.map(i => [i.name, i.par]));
+    for (const item of destItems) {
+      const srcPar = srcMap.get(item.name);
+      if (srcPar !== undefined) {
+        item.par = srcPar;
+        count++;
+      }
+    }
+  }
+  if (count) {
+    logChange(`Copied pars from ${srcTier} to ${destTier} (${count} item${count !== 1 ? 's' : ''} affected)`);
+    renderData();
+    scheduleSave();
+    showToast(`Copied pars from ${srcTier} → ${destTier}`);
+    document.getElementById(`undo-par-${destTier}`)?.style.setProperty('display', 'inline-flex');
+  } else {
+    showToast(`${srcTier} and ${destTier} pars already match`);
+  }
+}
+
+function undoCopy(type, tier) {
+  const snap = copyUndoSnap[`${type}-${tier}`];
+  if (!snap) return;
+  for (const { name, cat, val } of snap) {
+    const item = data[tier][cat]?.find(i => i.name === name);
+    if (item) item[type] = val;
+  }
+  delete copyUndoSnap[`${type}-${tier}`];
+  document.getElementById(`undo-${type}-${tier}`)?.style.setProperty('display', 'none');
+  logChange(`Undid ${type === 'hidden' ? 'hidden copy' : 'par copy'} on ${tier}`);
+  renderData();
+  scheduleSave();
+  showToast(`Undone`);
 }
 
 function bulkSetPar(sourceTier, scope) {
@@ -1922,9 +2044,9 @@ function renderTier(tier) {
           <button onclick="adj('${tier}','${cat}',${actualIdx},'have',1,event)" title="+1  (Shift: +10)">+</button>
         </div></td>
         <td class="td-ctr td-par"><div class="ticker">
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',-1,event)" title="−1  (Shift: −10)">−</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',-1,event)" title="−1  (Shift: −10  Ctrl: −5)">−</button>
           <input class="tick-val" type="number" value="${item.par}" min="0" onchange="setV('${tier}','${cat}',${actualIdx},'par',this.value)"/>
-          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',1,event)" title="+1  (Shift: +10)">+</button>
+          <button onclick="adj('${tier}','${cat}',${actualIdx},'par',1,event)" title="+1  (Shift: +10  Ctrl: +5)">+</button>
         </div></td>
         <td class="td-ctr"><span class="${n>0?'need-pos':'need-zero'}">${n>0?n:'—'}</span></td>
         <td><div class="flag-wrap"><span class="flag-toggle ${item.priority?'on-pri':''}" onclick="toggleF('${tier}','${cat}',${actualIdx},'priority')">${item.priority?'★ PRI':'PRI'}</span></div></td>
@@ -2025,7 +2147,7 @@ function mutateItem(tier, cat, idx, field, newVal) {
   renderData(); scheduleSave();
 }
 function adj(tier, cat, idx, field, d, event) {
-  const mult = event?.shiftKey ? 10 : 1;
+  const mult = event?.shiftKey ? 10 : (event?.ctrlKey || event?.metaKey) && field === 'par' ? 5 : 1;
   mutateItem(tier, cat, idx, field, data[tier][cat][idx][field] + d * mult);
 }
 function setV(tier, cat, idx, field, v) {
@@ -2583,11 +2705,11 @@ function renderSummary() {
         <div class="guide-section-title">Getting Started</div>
         <div class="guide-rows">
           <div class="guide-row">On your <strong>first visit</strong> you'll be prompted for your in-game name — shown to guildmates in the who's online list. You can update it anytime by clicking the online pill in the top bar.</div>
-          <div class="guide-row">After setting your name you'll be asked to create or join a room. <strong>Create</strong> if your guild doesn't have one yet — you'll get an 8-character code to share. <strong>Join</strong> with a code and password from your guild leader.</div>
-          <div class="guide-row">Browse <strong>Tier 7, 8, or 9</strong> tabs to see all tracked gear and weapons. Use the <strong>category filter bar</strong> to jump to Helmets, Warrior weapons, Mage staves, etc. Use the <strong>search box</strong> on the right of the filter bar to find a specific item by name.</div>
-          <div class="guide-row">Use the <strong>Have</strong> ticker to record how many of each item you have in stock. <strong>Shift+click</strong> any <span class="guide-badge gb-amber">+ / −</span> button to adjust by 10 at a time. Set a <strong>Par</strong> value for each item — your target quantity. <strong>Need</strong> calculates automatically.</div>
+          <div class="guide-row">After setting your name you'll be asked to create or join a room. <strong>Create</strong> if your guild doesn't have one yet — pick which tiers to track (T6–T10), set a guild name and password, and you'll get an 8-character code to share. <strong>Join</strong> with a code and password from your guild leader.</div>
+          <div class="guide-row">Browse the active tier tabs to see all tracked gear and weapons. Use the <strong>category filter bar</strong> to jump to Helmets, Warrior weapons, Mage staves, etc. Use the <strong>search box</strong> on the right of the filter bar to find a specific item by name.</div>
+          <div class="guide-row">Use the <strong>Have</strong> ticker to record how many of each item you have in stock. <strong>Shift+click</strong> any <span class="guide-badge gb-amber">+ / −</span> button to adjust by 10 at a time. Set a <strong>Par</strong> value — your target quantity. <strong>Ctrl+click</strong> (or <strong>Cmd+click</strong> on Mac) the Par <span class="guide-badge gb-amber">+ / −</span> to adjust by 5. <strong>Need</strong> calculates automatically.</div>
           <div class="guide-row">Click any column header (<strong>Have, Par, Need</strong>) to sort — click again to reverse. Sorting is per-tier and persists while you browse categories.</div>
-          <div class="guide-row"><strong>Keyboard shortcuts:</strong> <strong>1–8</strong> switch tabs · <strong>E</strong> toggle Edit Mode (on tier tabs) · <strong>R</strong> open Rapid Entry · <strong>D</strong> toggle dark mode · <strong>↑↓ / W S</strong> navigate the Rapid Entry wheel.</div>
+          <div class="guide-row"><strong>Keyboard shortcuts:</strong> <strong>1–8</strong> switch tabs · <strong>E</strong> toggle Edit Mode · <strong>R</strong> open Rapid Entry · <strong>D</strong> toggle dark mode · <strong>↑↓ / W S</strong> navigate the Rapid Entry wheel.</div>
         </div>
       </div>
       <div class="guide-section">
@@ -2602,17 +2724,17 @@ function renderSummary() {
       <div class="guide-section">
         <div class="guide-section-title">Rapid Entry</div>
         <div class="guide-rows">
-          <div class="guide-row">Click <strong>Rapid Entry</strong> in the tab bar to open a fullscreen wheel for quickly entering chest counts. Pick a tier at the top, then scroll through items with <strong>↑↓ arrow keys</strong> or <strong>W / S</strong>.</div>
-          <div class="guide-row">The active item sits large and centred. Type a number directly into the input — it turns green when the value differs from what's saved. Use <strong>W / S</strong> while the input is focused to commit the value and immediately move to the next item.</div>
+          <div class="guide-row">Click <strong>Rapid Entry</strong> in the tab bar (or press <strong>R</strong>) to open a fullscreen wheel for quickly entering chest counts. It opens on whichever tier you're currently viewing.</div>
+          <div class="guide-row">Scroll through items with <strong>↑↓ arrow keys</strong> or <strong>W / S</strong>. The active item sits large and centred — type a number directly into the input. Press <strong>W / S</strong> while the input is focused to commit the value and move to the next item immediately.</div>
           <div class="guide-row">Hidden items are skipped. Press <strong>R</strong> to save and close, or <strong>Esc</strong> to discard all changes.</div>
         </div>
       </div>
       <div class="guide-section">
         <div class="guide-section-title">Assignment & Order Sheet</div>
         <div class="guide-rows">
-          <div class="guide-row">Both tabs have a <strong>category filter bar</strong> so you can narrow the list to Helmets, Warrior weapons, etc. The Assignment and Order Sheet filters are independent of each other and of the tier tab filters.</div>
+          <div class="guide-row">Both tabs have a <strong>category filter bar</strong> to narrow the list. The Assignment and Order Sheet filters are independent of each other and of the tier tab filters.</div>
           <div class="guide-row">The <strong>Assignment</strong> tab shows every item below par and not ignored — your live crafting to-do list. Priority items appear first, then by highest need. Click a crafter's name tag to assign an item to them — click again to unassign.</div>
-          <div class="guide-row">The <strong>Order Sheet</strong> shows the same list with material quantities pre-calculated. Click <strong>Fulfill Order</strong> on any item — the button turns amber and asks you to confirm. On confirm, Have is set to par and the change syncs to everyone instantly.</div>
+          <div class="guide-row">The <strong>Order Sheet</strong> shows the same list with material quantities pre-calculated. Click <strong>Fulfill Order</strong> on any item — the button turns amber to confirm. On confirm, Have is set to par and the change syncs to everyone instantly.</div>
           <div class="guide-row">Click <strong>Export .txt</strong> on the Order Sheet to download a formatted text file with all orders, a <strong>Total Materials</strong> breakdown by tier, and an <strong>Expected Return (15%)</strong> section. <strong>Royal gear</strong> additionally lists the required Miscellaneous Sigils.</div>
         </div>
       </div>
@@ -2641,9 +2763,17 @@ function renderSummary() {
       <div class="guide-section">
         <div class="guide-section-title">Edit Mode</div>
         <div class="guide-rows">
-          <div class="guide-row">Click <strong>✎ Edit Items</strong> in the tab bar to reveal the <strong>Hide</strong> column and the <strong>bulk par setter</strong>.</div>
+          <div class="guide-row">Click <strong>✎ Edit Items</strong> in the tab bar to reveal the <strong>Hide</strong> column, the <strong>bulk par setter</strong>, and the <strong>copy bars</strong>.</div>
           <div class="guide-row"><span class="guide-badge gb-amber">Hide</span> Toggle <strong>Hide</strong> to remove items your guild doesn't use — excluded from all counts, need calculations, and order sheets. Shown as faded striped rows in Edit Mode so you can always re-enable them.</div>
           <div class="guide-row">Use the <strong>bulk par setter</strong> to set par for the current category, the whole tier, or all tiers at once. Hidden items are skipped.</div>
+          <div class="guide-row">Use <strong>Copy hidden from</strong> to mirror the hidden state of one tier onto another. Use <strong>Copy pars from</strong> to override all par values on a tier from another tier's values. Both have an <strong>Undo</strong> button that appears after applying.</div>
+        </div>
+      </div>
+      <div class="guide-section">
+        <div class="guide-section-title">Tier Selection</div>
+        <div class="guide-rows">
+          <div class="guide-row">When creating a room, choose which tiers to track from T6 through T10. The default is T7/T8/T9.</div>
+          <div class="guide-row">Officers can change active tiers at any time in <strong>⚙ Settings</strong>. Adding a tier creates a blank inventory for it; removing one hides it from all tabs and counts but doesn't delete the data — re-enabling it brings everything back.</div>
         </div>
       </div>
       <div class="guide-section">
@@ -2659,7 +2789,7 @@ function renderSummary() {
         <div class="guide-rows">
           <div class="guide-row">All changes <strong>sync in real time</strong> — every member in the room sees updates the moment they happen.</div>
           <div class="guide-row">Click the <strong>room badge</strong> in the top bar to copy your room code. Share the code and officer password with officers, or the crafter password with crafters.</div>
-          <div class="guide-row">Use <strong>⚙ Settings</strong> to rename your room, change either password, reset all inventory to zero, or restore a backup.</div>
+          <div class="guide-row">Use <strong>⚙ Settings</strong> to rename your room, change either password, change active tiers, reset all inventory to zero, or restore a backup.</div>
           <div class="guide-row"><strong>Backups</strong> are saved automatically each time you load the room — the last 3 snapshots are kept. Restoring one overwrites current data and syncs to everyone in the room immediately.</div>
           <div class="guide-row">Click the <strong>who's online</strong> pill to see who's in the room and update your own display name.</div>
           <div class="guide-row">If a room hasn't been updated in over <strong>30 days</strong>, a warning banner appears on rejoin as a reminder to verify the data before a raid.</div>
